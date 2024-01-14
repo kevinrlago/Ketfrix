@@ -99,7 +99,7 @@ services:
       - .env.common
     volumes:
       - /config/$BOOKS:/config
-      - /DATA/Downloads:/downloads
+      - /DATA/Downloads/Libros:/downloads
       - /Libros/Biblioteca:/books
     labels:
       - "traefik.docker.network=t2_proxy"
@@ -182,7 +182,7 @@ services:
       - .env.common
     volumes:
       - /config/$DOWNLOAD:/config
-      - /DATA/Downloads:/data
+      - /DATA/Downloads:/downloads
     labels:
       - "traefik.docker.network=t2_proxy"
       - "traefik.enable=true"
@@ -367,7 +367,8 @@ services:
       - .env.common
       - .env.$LIB
     volumes:
-      - /Libros/Bibliteca:/config
+      - /Libros/Biblioteca:/books
+      - /config/calibre:/config
     expose:
       - 8080
       - 8181
@@ -506,6 +507,7 @@ services:
     env_file:
       - .env.common
     network_mode: host
+    restart: always
 
   autoscan:
     container_name: autoscan
@@ -517,7 +519,20 @@ services:
       - .env.common
       - .env.autoscan
     volumes:
-      - /config/autoscan:/config  
+      - /config/autoscan:/config
+    restart: always
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.autoscan.rule=Host(`autoscan.$DOMAIN`|| `autoscan.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.autoscan.entrypoints=https"
+      - "traefik.http.routers.autoscan.tls=true"
+      - "traefik.http.routers.autoscan.service=autoscan_svc"
+      - "traefik.http.routers.autoscan_http.rule=Host(`autoscan.$DOMAIN` || `autoscan.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.autoscan_http.entrypoints=http"
+      - "traefik.http.routers.autoscan_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.autoscan.tls.certresolver=myresolver"
+      - "traefik.http.services.autoscan_svc.loadbalancer.server.port=3030" 
 
 networks:
   default:
