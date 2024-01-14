@@ -2,7 +2,7 @@
 version: "2.1"
 services:
 
-  $TV:
+  sonarr:
     image: ghcr.io/hotio/$TV:latest
     container_name: $TV
     user: ${PUID}:${PGID}
@@ -31,7 +31,7 @@ services:
     networks:
       - t2_proxy
 
-  $FILMS:
+  radarr:
     image: ghcr.io/hotio/$FILMS:latest
     container_name: $FILMS
     user: ${PUID}:${PGID}
@@ -60,7 +60,7 @@ services:
     networks:
       - t2_proxy
 
-  $MUSIC:
+  lidarr:
     image: ghcr.io/hotio/$MUSIC:latest
     container_name: $MUSIC
     user: ${PUID}:${PGID}
@@ -89,7 +89,7 @@ services:
     networks:
       - t2_proxy
 
-  $BOOKS:
+  readarr:
     container_name: $BOOKS
     image: lscr.io/linuxserver/$BOOKS:develop
     user: ${PUID}:${PGID}
@@ -117,7 +117,7 @@ services:
     networks:
       - t2_proxy
 
-  $PACK:
+  unpackerr:
     image: ghcr.io/hotio/$PACK
     container_name: $PACK
     volumes:
@@ -137,7 +137,7 @@ services:
     security_opt:
       - no-new-privileges:true
 
-  $TRACKER:
+  prowlarr:
     container_name: $TRACKER
     image: ghcr.io/hotio/$TRACKER
     user: ${PUID}:${PGID}
@@ -198,7 +198,7 @@ services:
     networks:
       - t2_proxy
 
-  $SUBS:
+  bazarr:
     container_name: $SUBS
     image: ghcr.io/hotio/$SUBS
     user: ${PUID}:${PGID}
@@ -224,7 +224,7 @@ services:
     networks:
       - t2_proxy
 
-  $MEDIAJ:
+  jellyfin:
     container_name: $MEDIAJ
     image: ghcr.io/hotio/$MEDIAJ
     user: ${PUID}:${PGID}
@@ -250,7 +250,7 @@ services:
     networks:
       - t2_proxy
 
-  $REQUESTS:
+  overseerr:
     container_name: $REQUESTS
     image: ghcr.io/hotio/$REQUESTS
     user: ${PUID}:${PGID}
@@ -275,7 +275,7 @@ services:
     networks:
       - t2_proxy
 
-  $DOWNMNGMT:
+  flood:
     hostname: $DOWNMNGMT
     image: jesec/$DOWNMNGMT
     user: ${PUID}:${PGID}
@@ -304,7 +304,7 @@ services:
     networks:
       - t2_proxy
 
-  $TAU:
+  tautulli:
     container_name: $TAU
     image: ghcr.io/hotio/$TAU
     user: ${PUID}:${PGID}
@@ -329,7 +329,7 @@ services:
     networks:
       - t2_proxy
 
-  $WEB:
+  calibre-web:
     image: lscr.io/linuxserver/$WEB:latest
     container_name: $WEB
     user: ${PUID}:${PGID}
@@ -357,7 +357,7 @@ services:
     networks:
       - t2_proxy
 
-  $LIB:
+  calibre:
     image: lscr.io/linuxserver/$LIB:latest
     container_name: $LIB
     user: ${PUID}:${PGID}
@@ -389,7 +389,7 @@ services:
     networks:
       - t2_proxy
 
-  $DOC:
+  hedgedoc:
     image: lscr.io/linuxserver/$DOC:latest
     container_name: $DOC
     user: ${PUID}:${PGID}
@@ -416,7 +416,7 @@ services:
     networks:
       - t2_proxy
 
-  $MEDIA:
+  Plex:
     image: lscr.io/linuxserver/$MEDIA:latest
     container_name: $MEDIA
     user: ${PUID}:${PGID}
@@ -456,7 +456,7 @@ services:
     networks:
       - t2_proxy
 
-  $XTEVE:
+  XTEVE:
     image: dnsforge/xteve:latest
     container_name: $XTEVE
     user: ${PUID}:${PGID}
