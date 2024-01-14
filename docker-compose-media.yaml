@@ -276,7 +276,7 @@ services:
       - t2_proxy
 
   flood:
-    hostname: $DOWNMNGMT
+    container_name: $DOWNMNGMT
     image: jesec/$DOWNMNGMT
     user: ${PUID}:${PGID}
     restart: unless-stopped
