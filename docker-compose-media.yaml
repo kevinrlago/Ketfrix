@@ -178,9 +178,10 @@ services:
     #user: ${PUID}:${PGID}
     expose:
       - 8080
-    env_file:
-      - .env.common
+    # env_file:
+    #   - .env.common
     environment:
+      - TZ=Europe/Madrid
       - UMASK=002
     volumes:
       - /config/$DOWNLOAD/.config:/config
