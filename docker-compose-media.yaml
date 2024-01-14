@@ -404,7 +404,7 @@ services:
     labels:
       - "traefik.docker.network=t2_proxy"
       - "traefik.enable=true"
-      - "traefik.http.routers.$DOC.rule=Host(`$DOC.$DOMAIN`|| `$DOC.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$DOC.rule=Host(`$DOC.$DOMAIN`) || Host(`$DOC.$LOCAL.$DOMAIN`)"
       - "traefik.http.routers.$DOC.entrypoints=https"
       - "traefik.http.routers.$DOC.tls=true"
       - "traefik.http.routers.$DOC.service=${DOC}_svc"
