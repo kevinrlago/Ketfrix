@@ -21,12 +21,12 @@ services:
       - "traefik.http.routers.$TV.rule=Host(`$TV.$DOMAIN`|| `$TV.$LOCAL.$DOMAIN` || `$TV.internal.$DOMAIN`)"
       - "traefik.http.routers.$TV.entrypoints=https"
       - "traefik.http.routers.$TV.tls=true"
-      - "traefik.http.routers.$TV.service=$TV_svc"
-      - "traefik.http.routers.$TV_http.rule=Host(`$TV.$DOMAIN` || `$TV.$LOCAL.$DOMAIN`|| `$TV.internal.$DOMAIN`)"
-      - "traefik.http.routers.$TV_http.entrypoints=http"
-      - "traefik.http.routers.$TV_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$TV.service=${TV}_svc"
+      - "traefik.http.routers.${TV}_http.rule=Host(`$TV.$DOMAIN` || `$TV.$LOCAL.$DOMAIN`|| `$TV.internal.$DOMAIN`)"
+      - "traefik.http.routers.${TV}_http.entrypoints=http"
+      - "traefik.http.routers.${TV}_http.middlewares=chain-authelia@file"
       - "traefik.http.routers.$TV.tls.certresolver=myresolver"
-      - "traefik.http.services.$TV_svc.loadbalancer.server.port=8989"
+      - "traefik.http.services.${TV}_svc.loadbalancer.server.port=8989"
     restart: unless-stopped
     networks:
       - t2_proxy
@@ -50,12 +50,12 @@ services:
       - "traefik.http.routers.$FILMS.rule=Host(`$FILMS.$DOMAIN`|| `$FILMS.$LOCAL.$DOMAIN` || `$FILMS.internal.$DOMAIN`)"
       - "traefik.http.routers.$FILMS.entrypoints=https"
       - "traefik.http.routers.$FILMS.tls=true"
-      - "traefik.http.routers.$FILMS.service=$FILMS_svc"
-      - "traefik.http.routers.$FILMS_http.rule=Host(`$FILMS.$DOMAIN` || `$FILMS.$LOCAL.$DOMAIN`|| `$FILMS.internal.$DOMAIN`)"
-      - "traefik.http.routers.$FILMS_http.entrypoints=http"
-      - "traefik.http.routers.$FILMS_http.middlewares=chain-authelia@file"
-      - "traefik.http.routers.$FILMS.tls.certresolver=myresolver"
-      - "traefik.http.services.$FILMS_svc.loadbalancer.server.port=7878"
+      - "traefik.http.routers.$FILMS.service=${FILMS}_svc"
+      - "traefik.http.routers.${FILMS}_http.rule=Host(`$FILMS.$DOMAIN` || `$FILMS.$LOCAL.$DOMAIN`|| `$FILMS.internal.$DOMAIN`)"
+      - "traefik.http.routers.${FILMS}_http.entrypoints=http"
+      - "traefik.http.routers.${FILMS}_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.${FILMS}.tls.certresolver=myresolver"
+      - "traefik.http.services.${FILMS}_svc.loadbalancer.server.port=7878"
     restart: unless-stopped
     networks:
       - t2_proxy
@@ -79,12 +79,12 @@ services:
       - "traefik.http.routers.$MUSIC.rule=Host(`$MUSIC.$DOMAIN`|| `$MUSIC.$LOCAL.$DOMAIN` || `$MUSIC.internal.$DOMAIN`)"
       - "traefik.http.routers.$MUSIC.entrypoints=https"
       - "traefik.http.routers.$MUSIC.tls=true"
-      - "traefik.http.routers.$MUSIC.service=$MUSIC_svc"
-      - "traefik.http.routers.$MUSIC_http.rule=Host(`$MUSIC.$DOMAIN` || `$MUSIC.$LOCAL.$DOMAIN`|| `$MUSIC.internal.$DOMAIN`)  "
-      - "traefik.http.routers.$MUSIC_http.entrypoints=http"
-      - "traefik.http.routers.$MUSIC_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$MUSIC.service=${MUSIC}_svc"
+      - "traefik.http.routers.${MUSIC}_http.rule=Host(`$MUSIC.$DOMAIN` || `$MUSIC.$LOCAL.$DOMAIN`|| `$MUSIC.internal.$DOMAIN`)  "
+      - "traefik.http.routers.${MUSIC}_http.entrypoints=http"
+      - "traefik.http.routers.${MUSIC}_http.middlewares=chain-authelia@file"
       - "traefik.http.routers.$MUSIC.tls.certresolver=myresolver"
-      - "traefik.http.services.$MUSIC_svc.loadbalancer.server.port=8686"
+      - "traefik.http.services.${MUSIC}_svc.loadbalancer.server.port=8686"
     restart: unless-stopped
     networks:
       - t2_proxy
@@ -107,12 +107,12 @@ services:
       - "traefik.http.routers.$BOOKS.rule=Host(`$BOOKS.$DOMAIN`|| `$BOOKS.$LOCAL.$DOMAIN` || `$BOOKS.internal.$DOMAIN`)"
       - "traefik.http.routers.$BOOKS.entrypoints=https"
       - "traefik.http.routers.$BOOKS.tls=true"
-      - "traefik.http.routers.$BOOKS.service=$BOOKS_svc"
-      - "traefik.http.routers.$BOOKS_http.rule=Host(`$BOOKS.$DOMAIN` || `$BOOKS.$LOCAL.$DOMAIN`|| `$BOOKS.internal.$DOMAIN`)  "
-      - "traefik.http.routers.$BOOKS_http.entrypoints=http"
-      - "traefik.http.routers.$BOOKS_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$BOOKS.service=${BOOKS}_svc"
+      - "traefik.http.routers.${BOOKS}_http.rule=Host(`$BOOKS.$DOMAIN` || `$BOOKS.$LOCAL.$DOMAIN`|| `$BOOKS.internal.$DOMAIN`)  "
+      - "traefik.http.routers.${BOOKS}_http.entrypoints=http"
+      - "traefik.http.routers.${BOOKS}_http.middlewares=chain-authelia@file"
       - "traefik.http.routers.$BOOKS.tls.certresolver=myresolver"
-      - "traefik.http.services.$BOOKS_svc.loadbalancer.server.port=8787"
+      - "traefik.http.services.${BOOKS}_svc.loadbalancer.server.port=8787"
     restart: unless-stopped
     networks:
       - t2_proxy
@@ -153,12 +153,12 @@ services:
       - "traefik.http.routers.$TRACKER.rule=Host(`$TRACKER.$DOMAIN`|| `$TRACKER.$LOCAL.$DOMAIN` || `$TRACKER.internal.$DOMAIN`)"
       - "traefik.http.routers.$TRACKER.entrypoints=https"
       - "traefik.http.routers.$TRACKER.tls=true"
-      - "traefik.http.routers.$TRACKER.service=$TRACKER_svc"
-      - "traefik.http.routers.$TRACKER_http.rule=Host(`$TRACKER.$DOMAIN` || `$TRACKER.$LOCAL.$DOMAIN`|| `$TRACKER.internal.$DOMAIN  `)"
-      - "traefik.http.routers.$TRACKER_http.entrypoints=http"
-      - "traefik.http.routers.$TRACKER_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$TRACKER.service=${TRACKER}_svc"
+      - "traefik.http.routers.${TRACKER}_http.rule=Host(`$TRACKER.$DOMAIN` || `$TRACKER.$LOCAL.$DOMAIN`|| `$TRACKER.internal.$DOMAIN  `)"
+      - "traefik.http.routers.${TRACKER}_http.entrypoints=http"
+      - "traefik.http.routers.${TRACKER}_http.middlewares=chain-authelia@file"
       - "traefik.http.routers.$TRACKER.tls.certresolver=myresolver"
-      - "traefik.http.services.$TRACKER_svc.loadbalancer.server.port=9696"
+      - "traefik.http.services.${TRACKER}_svc.loadbalancer.server.port=9696"
     networks:
       - t2_proxy
 
@@ -189,12 +189,12 @@ services:
       - "traefik.http.routers.$DOWNLOAD.rule=Host( `$DOWNLOAD.$LOCAL.$DOMAIN` )"
       - "traefik.http.routers.$DOWNLOAD.entrypoints=https"
       - "traefik.http.routers.$DOWNLOAD.tls=true"
-      - "traefik.http.routers.$DOWNLOAD.service=$DOWNLOAD_svc"
-      - "traefik.http.routers.$DOWNLOAD_http.rule=Host( `$DOWNLOAD.$LOCAL.$DOMAIN`)"
-      - "traefik.http.routers.$DOWNLOAD_http.entrypoints=http"
-      - "traefik.http.routers.$DOWNLOAD_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$DOWNLOAD.service=${DOWNLOAD}_svc"
+      - "traefik.http.routers.${DOWNLOAD}_http.rule=Host( `$DOWNLOAD.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.${DOWNLOAD}_http.entrypoints=http"
+      - "traefik.http.routers.${DOWNLOAD}_http.middlewares=chain-authelia@file"
       - "traefik.http.routers.$DOWNLOAD.tls.certresolver=myresolver"
-      - "traefik.http.services.$DOWNLOAD_svc.loadbalancer.server.port=8080"
+      - "traefik.http.services.${DOWNLOAD}_svc.loadbalancer.server.port=8080"
     networks:
       - t2_proxy
 
@@ -215,12 +215,12 @@ services:
       - "traefik.http.routers.$SUBS.rule=Host(`$SUBS.$DOMAIN`|| `$SUBS.$LOCAL.$DOMAIN` )"
       - "traefik.http.routers.$SUBS.entrypoints=https"
       - "traefik.http.routers.$SUBS.tls=true"
-      - "traefik.http.routers.$SUBS.service=$TV_svc"
-      - "traefik.http.routers.$SUBS_http.rule=Host(`$SUBS.$DOMAIN` || `$SUBS.$LOCAL.$DOMAIN` )"
-      - "traefik.http.routers.$SUBS_http.entrypoints=http"
-      - "traefik.http.routers.$SUBS_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$SUBS.service=${SUBS}_svc"
+      - "traefik.http.routers.${SUBS}_http.rule=Host(`$SUBS.$DOMAIN` || `$SUBS.$LOCAL.$DOMAIN` )"
+      - "traefik.http.routers.${SUBS}_http.entrypoints=http"
+      - "traefik.http.routers.${SUBS}_http.middlewares=chain-authelia@file"
       - "traefik.http.routers.$SUBS.tls.certresolver=myresolver"
-      - "traefik.http.services.$SUBS_svc.loadbalancer.server.port=6767"
+      - "traefik.http.services.${SUBS}_svc.loadbalancer.server.port=6767"
     networks:
       - t2_proxy
 
@@ -241,12 +241,12 @@ services:
       - "traefik.http.routers.$MEDIAJ.rule=Host(`$MEDIAJ.$DOMAIN` || `$TV.$LOCAL.$DOMAIN` )"
       - "traefik.http.routers.$MEDIAJ.entrypoints=https"
       - "traefik.http.routers.$MEDIAJ.tls=true"
-      - "traefik.http.routers.$MEDIAJ.service=$TV_svc"
-      - "traefik.http.routers.$MEDIAJ_http.rule=Host(`$MEDIAJ.$DOMAIN` || `$MEDIAJ.$LOCAL.$DOMAIN`)"
-      - "traefik.http.routers.$MEDIAJ_http.entrypoints=http"
-      - "traefik.http.routers.$MEDIAJ_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$MEDIAJ.service=${MEDIAJ}_svc"
+      - "traefik.http.routers.${MEDIAJ}_http.rule=Host(`$MEDIAJ.$DOMAIN` || `$MEDIAJ.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.${MEDIAJ}_http.entrypoints=http"
+      - "traefik.http.routers.${MEDIAJ}_http.middlewares=chain-authelia@file"
       - "traefik.http.routers.$MEDIAJ.tls.certresolver=myresolver"
-      - "traefik.http.services.$MEDIAJ_svc.loadbalancer.server.port=8096"
+      - "traefik.http.services.${MEDIAJ}_svc.loadbalancer.server.port=8096"
     networks:
       - t2_proxy
 
@@ -266,12 +266,12 @@ services:
       - "traefik.http.routers.$REQUESTS.rule=Host(`$REQUESTS.$DOMAIN`)"
       - "traefik.http.routers.$REQUESTS.entrypoints=https"
       - "traefik.http.routers.$REQUESTS.tls=true"
-      - "traefik.http.routers.$REQUESTS.service=$REQUESTS_svc"
-      - "traefik.http.routers.$REQUESTS_http.rule=Host(`$TV.$DOMAIN`)"
-      - "traefik.http.routers.$REQUESTS_http.entrypoints=http"
-      - "traefik.http.routers.$REQUESTS_http.middlewares=chain-authelia@file"
-      - "traefik.http.routers.$REQUESTS.tls.certresolver=myresolver"
-      - "traefik.http.services.$REQUESTS_svc.loadbalancer.server.port=5055"
+      - "traefik.http.routers.$REQUESTS.service=${REQUESTS}_svc"
+      - "traefik.http.routers.${REQUESTS}_http.rule=Host(`$TV.$DOMAIN`)"
+      - "traefik.http.routers.${REQUESTS}_http.entrypoints=http"
+      - "traefik.http.routers.${REQUESTS}_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.${REQUESTS}.tls.certresolver=myresolver"
+      - "traefik.http.services.${REQUESTS}_svc.loadbalancer.server.port=5055"
     networks:
       - t2_proxy
 
@@ -295,12 +295,12 @@ services:
       - "traefik.http.routers.$DOWNMNGMT.rule=Host(`$DOWNMNGMT.$DOMAIN`|| `$DOWNMNGMT.$LOCAL.$DOMAIN` )"
       - "traefik.http.routers.$DOWNMNGMT.entrypoints=https"
       - "traefik.http.routers.$DOWNMNGMT.tls=true"
-      - "traefik.http.routers.$DOWNMNGMT.service=$TV_svc"
-      - "traefik.http.routers.$DOWNMNGMT_http.rule=Host(`$DOWNMNGMT.$DOMAIN` || `$DOWNMNGMT.$LOCAL.$DOMAIN`)"
-      - "traefik.http.routers.$DOWNMNGMT_http.entrypoints=http"
-      - "traefik.http.routers.$DOWNMNGMT_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$DOWNMNGMT.service=${DOWNMNGMT}_svc"
+      - "traefik.http.routers.${DOWNMNGMT}_http.rule=Host(`$DOWNMNGMT.$DOMAIN` || `$DOWNMNGMT.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.${DOWNMNGMT}_http.entrypoints=http"
+      - "traefik.http.routers.${DOWNMNGMT}_http.middlewares=chain-authelia@file"
       - "traefik.http.routers.$DOWNMNGMT.tls.certresolver=myresolver"
-      - "traefik.http.services.$DOWNMNGMT_svc.loadbalancer.server.port=3001"
+      - "traefik.http.services.${DOWNMNGMT}_svc.loadbalancer.server.port=3001"
     networks:
       - t2_proxy
 
@@ -320,12 +320,12 @@ services:
       - "traefik.http.routers.$TAU.rule=Host(`$TAU.$DOMAIN`|| `$TAU.$LOCAL.$DOMAIN` || `$TAU.internal.$DOMAIN`)"
       - "traefik.http.routers.$TAU.entrypoints=https"
       - "traefik.http.routers.$TAU.tls=true"
-      - "traefik.http.routers.$TAU.service=$TV_svc"
-      - "traefik.http.routers.$TAU_http.rule=Host(`$TAU.$DOMAIN` || `$TAU.$LOCAL.$DOMAIN`|| `$TAU.internal.$DOMAIN  `)"
-      - "traefik.http.routers.$TAU_http.entrypoints=http"
-      - "traefik.http.routers.$TAU_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$TAU.service=${TAU}_svc"
+      - "traefik.http.routers.${TAU}_http.rule=Host(`$TAU.$DOMAIN` || `$TAU.$LOCAL.$DOMAIN`|| `$TAU.internal.$DOMAIN  `)"
+      - "traefik.http.routers.${TAU}_http.entrypoints=http"
+      - "traefik.http.routers.${TAU}_http.middlewares=chain-authelia@file"
       - "traefik.http.routers.$TAU.tls.certresolver=myresolver"
-      - "traefik.http.services.$TAU_svc.loadbalancer.server.port=8181"
+      - "traefik.http.services.${TAU}_svc.loadbalancer.server.port=8181"
     networks:
       - t2_proxy
 
@@ -348,12 +348,12 @@ services:
       - "traefik.http.routers.$WEB.rule=Host(`$WEB.$DOMAIN`|| `$WEB.$LOCAL.$DOMAIN`)"
       - "traefik.http.routers.$WEB.entrypoints=https"
       - "traefik.http.routers.$WEB.tls=true"
-      - "traefik.http.routers.$WEB.service=$WEB_svc"
-      - "traefik.http.routers.$WEB_http.rule=Host(`$WEB.$DOMAIN` || `$WEB.$LOCAL.$DOMAIN`)"
-      - "traefik.http.routers.$WEB_http.entrypoints=http"
-      - "traefik.http.routers.$WEB_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$WEB.service=${WEB}_svc"
+      - "traefik.http.routers.${WEB}_http.rule=Host(`$WEB.$DOMAIN` || `$WEB.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.${WEB}_http.entrypoints=http"
+      - "traefik.http.routers.${WEB}_http.middlewares=chain-authelia@file"
       - "traefik.http.routers.$WEB.tls.certresolver=myresolver"
-      - "traefik.http.services.$WEB_svc.loadbalancer.server.port=8083"
+      - "traefik.http.services.${WEB}_svc.loadbalancer.server.port=8083"
     networks:
       - t2_proxy
 
@@ -380,12 +380,12 @@ services:
       - "traefik.http.routers.$LIB.rule=Host(`$LIB.$LOCAL.$DOMAIN`)"
       - "traefik.http.routers.$LIB.entrypoints=https"
       - "traefik.http.routers.$LIB.tls=true"
-      - "traefik.http.routers.$LIB.service=$LIB_svc"
-      - "traefik.http.routers.$LIB_http.rule=Host(`$LIB.$LOCAL.$DOMAIN`)"
-      - "traefik.http.routers.$LIB_http.entrypoints=http"
-      - "traefik.http.routers.$LIB_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$LIB.service=${LIB}_svc"
+      - "traefik.http.routers.${LIB}_http.rule=Host(`$LIB.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.${LIB}_http.entrypoints=http"
+      - "traefik.http.routers.${LIB}_http.middlewares=chain-authelia@file"
       - "traefik.http.routers.$LIB.tls.certresolver=myresolver"
-      - "traefik.http.services.$LIB_svc.loadbalancer.server.port=8080"
+      - "traefik.http.services.${LIB}_svc.loadbalancer.server.port=8080"
     networks:
       - t2_proxy
 
@@ -407,12 +407,12 @@ services:
       - "traefik.http.routers.$DOC.rule=Host(`$DOC.$DOMAIN`|| `$DOC.$LOCAL.$DOMAIN`)"
       - "traefik.http.routers.$DOC.entrypoints=https"
       - "traefik.http.routers.$DOC.tls=true"
-      - "traefik.http.routers.$DOC.service=$DOC_svc"
-      - "traefik.http.routers.$DOC_http.rule=Host(`$DOC.$DOMAIN` || `$DOC.$LOCAL.$DOMAIN`)"
-      - "traefik.http.routers.$DOC_http.entrypoints=http"
-      - "traefik.http.routers.$DOC_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$DOC.service=${DOC}_svc"
+      - "traefik.http.routers.${DOC}_http.rule=Host(`$DOC.$DOMAIN` || `$DOC.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.${DOC}_http.entrypoints=http"
+      - "traefik.http.routers.${DOC}_http.middlewares=chain-authelia@file"
       - "traefik.http.routers.$DOC.tls.certresolver=myresolver"
-      - "traefik.http.services.$DOC_svc.loadbalancer.server.port=3000"
+      - "traefik.http.services.${DOC}_svc.loadbalancer.server.port=3000"
     networks:
       - t2_proxy
 
@@ -447,12 +447,12 @@ services:
       - "traefik.http.routers.$MEDIA.rule=Host(`$MEDIA.$DOMAIN`|| `$MEDIA.$LOCAL.$DOMAIN`)"
       - "traefik.http.routers.$MEDIA.entrypoints=https"
       - "traefik.http.routers.$MEDIA.tls=true"
-      - "traefik.http.routers.$MEDIA.service=$MEDIA_svc"
-      - "traefik.http.routers.$MEDIA_http.rule=Host(`$MEDIA.$DOMAIN` || `$MEDIA.$LOCAL.$DOMAIN`)"
-      - "traefik.http.routers.$MEDIA_http.entrypoints=http"
-      - "traefik.http.routers.$MEDIA_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$MEDIA.service=${MEDIA}_svc"
+      - "traefik.http.routers.${MEDIA}_http.rule=Host(`$MEDIA.$DOMAIN` || `$MEDIA.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.${MEDIA}_http.entrypoints=http"
+      - "traefik.http.routers.${MEDIA}_http.middlewares=chain-authelia@file"
       - "traefik.http.routers.$MEDIA.tls.certresolver=myresolver"
-      - "traefik.http.services.$MEDIA_svc.loadbalancer.server.port=32400"
+      - "traefik.http.services.${MEDIA}_svc.loadbalancer.server.port=32400"
     networks:
       - t2_proxy
 
@@ -475,12 +475,12 @@ services:
       - "traefik.http.routers.$XTEVE.rule=Host(`$XTEVE.$DOMAIN`|| `$XTEVE.$LOCAL.$DOMAIN`)"
       - "traefik.http.routers.$XTEVE.entrypoints=https"
       - "traefik.http.routers.$XTEVE.tls=true"
-      - "traefik.http.routers.$XTEVE.service=$XTEVE_svc"
-      - "traefik.http.routers.$XTEVE_http.rule=Host(`$XTEVE.$DOMAIN` || `$XTEVE.$LOCAL.$DOMAIN`)"
-      - "traefik.http.routers.$XTEVE_http.entrypoints=http"
-      - "traefik.http.routers.$XTEVE_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$XTEVE.service=${XTEVE}_svc"
+      - "traefik.http.routers.${XTEVE}_http.rule=Host(`$XTEVE.$DOMAIN` || `$XTEVE.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.${XTEVE}_http.entrypoints=http"
+      - "traefik.http.routers.${XTEVE}_http.middlewares=chain-authelia@file"
       - "traefik.http.routers.$XTEVE.tls.certresolver=myresolver"
-      - "traefik.http.services.$XTEVE_svc.loadbalancer.server.port=34400"
+      - "traefik.http.services.${XTEVE}_svc.loadbalancer.server.port=34400"
     networks:
       - t2_proxy  
 
