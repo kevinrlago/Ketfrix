@@ -198,31 +198,31 @@ services:
     networks:
       - t2_proxy
 
-  bazarr:
-    container_name: $SUBS
-    image: ghcr.io/hotio/$SUBS
-    user: ${PUID}:${PGID}
-    expose:
-      - 6767
-    env_file:
-      - .env.common
-    volumes:
-      - /config/$SUBS:/config
-      - /DATA/Plex:/data
-    labels:
-      - "traefik.docker.network=t2_proxy"
-      - "traefik.enable=true"
-      - "traefik.http.routers.$SUBS.rule=Host(`$SUBS.$DOMAIN`|| `$SUBS.$LOCAL.$DOMAIN` )"
-      - "traefik.http.routers.$SUBS.entrypoints=https"
-      - "traefik.http.routers.$SUBS.tls=true"
-      - "traefik.http.routers.$SUBS.service=${SUBS}_svc"
-      - "traefik.http.routers.${SUBS}_http.rule=Host(`$SUBS.$DOMAIN` || `$SUBS.$LOCAL.$DOMAIN` )"
-      - "traefik.http.routers.${SUBS}_http.entrypoints=http"
-      - "traefik.http.routers.${SUBS}_http.middlewares=chain-authelia@file"
-      - "traefik.http.routers.$SUBS.tls.certresolver=myresolver"
-      - "traefik.http.services.${SUBS}_svc.loadbalancer.server.port=6767"
-    networks:
-      - t2_proxy
+  # bazarr:
+  #   container_name: $SUBS
+  #   image: ghcr.io/hotio/$SUBS
+  #   user: ${PUID}:${PGID}
+  #   expose:
+  #     - 6767
+  #   env_file:
+  #     - .env.common
+  #   volumes:
+  #     - /config/$SUBS:/config
+  #     - /DATA/Plex:/data
+  #   labels:
+  #     - "traefik.docker.network=t2_proxy"
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.$SUBS.rule=Host(`$SUBS.$DOMAIN`|| `$SUBS.$LOCAL.$DOMAIN` )"
+  #     - "traefik.http.routers.$SUBS.entrypoints=https"
+  #     - "traefik.http.routers.$SUBS.tls=true"
+  #     - "traefik.http.routers.$SUBS.service=${SUBS}_svc"
+  #     - "traefik.http.routers.${SUBS}_http.rule=Host(`$SUBS.$DOMAIN` || `$SUBS.$LOCAL.$DOMAIN` )"
+  #     - "traefik.http.routers.${SUBS}_http.entrypoints=http"
+  #     - "traefik.http.routers.${SUBS}_http.middlewares=chain-authelia@file"
+  #     - "traefik.http.routers.$SUBS.tls.certresolver=myresolver"
+  #     - "traefik.http.services.${SUBS}_svc.loadbalancer.server.port=6767"
+  #   networks:
+  #     - t2_proxy
 
   jellyfin:
     container_name: $MEDIAJ
