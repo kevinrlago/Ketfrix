@@ -174,7 +174,7 @@ services:
 
   qbittorrent:
     container_name: qbittorrent
-    image: ghcr.io/hotio/qbittorrent
+    image: lscr.io/linuxserver/qbittorrent:latest
     #user: ${PUID}:${PGID}
     expose:
       - 8080
@@ -183,7 +183,7 @@ services:
     environment:
       - UMASK=002
     volumes:
-      - /config/$DOWNLOAD:/config
+      - /config/$DOWNLOAD/.config:/config
       - /DATA/Downloads:/downloads
     labels:
       - "traefik.docker.network=t2_proxy"
