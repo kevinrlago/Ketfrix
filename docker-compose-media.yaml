@@ -1,0 +1,527 @@
+---
+version: "2.1"
+services:
+
+  $TV:
+    image: ghcr.io/hotio/$TV:latest
+    container_name: $TV
+    user: ${PUID}:${PGID}
+    env_file:
+      - .env.common
+    volumes:
+      - /config/$TV:/config
+      - /DATA/Plex/Series:/tv
+      - /DATA/Downloads/$TV:/downloads
+      - /DATA/Downloads/$TV-downloaded:/downloaded
+    expose:
+      - 8989
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$TV.rule=Host(`$TV.$DOMAIN`|| `$TV.$LOCAL.$DOMAIN` || `$TV.internal.$DOMAIN`)"
+      - "traefik.http.routers.$TV.entrypoints=https"
+      - "traefik.http.routers.$TV.tls=true"
+      - "traefik.http.routers.$TV.service=$TV_svc"
+      - "traefik.http.routers.$TV_http.rule=Host(`$TV.$DOMAIN` || `$TV.$LOCAL.$DOMAIN`|| `$TV.internal.$DOMAIN`)"
+      - "traefik.http.routers.$TV_http.entrypoints=http"
+      - "traefik.http.routers.$TV_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$TV.tls.certresolver=myresolver"
+      - "traefik.http.services.$TV_svc.loadbalancer.server.port=8989"
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+
+  $FILMS:
+    image: ghcr.io/hotio/$FILMS:latest
+    container_name: $FILMS
+    user: ${PUID}:${PGID}
+    env_file:
+      - .env.common
+    volumes:
+      - /config/$FILMS:/config
+      - /DATA/Plex/films:/movies
+      - /DATA/Downloads/$FILMS:/downloads
+      - /DATA/Downloads/$FILMS-downloaded:/downloaded
+    expose:
+      - 7878
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$FILMS.rule=Host(`$FILMS.$DOMAIN`|| `$FILMS.$LOCAL.$DOMAIN` || `$FILMS.internal.$DOMAIN`)"
+      - "traefik.http.routers.$FILMS.entrypoints=https"
+      - "traefik.http.routers.$FILMS.tls=true"
+      - "traefik.http.routers.$FILMS.service=$FILMS_svc"
+      - "traefik.http.routers.$FILMS_http.rule=Host(`$FILMS.$DOMAIN` || `$FILMS.$LOCAL.$DOMAIN`|| `$FILMS.internal.$DOMAIN`)"
+      - "traefik.http.routers.$FILMS_http.entrypoints=http"
+      - "traefik.http.routers.$FILMS_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$FILMS.tls.certresolver=myresolver"
+      - "traefik.http.services.$FILMS_svc.loadbalancer.server.port=7878"
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+
+  $MUSIC:
+    image: ghcr.io/hotio/$MUSIC:latest
+    container_name: $MUSIC
+    user: ${PUID}:${PGID}
+    env_file:
+      - .env.common
+    volumes:
+      - /config/$MUSIC:/config
+      - /DATA/Plex/films:/movies
+      - /DATA/Downloads/$MUSIC:/downloads
+      - /DATA/Downloads/$MUSIC-downloaded:/downloaded
+    expose:
+      - 8686
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$MUSIC.rule=Host(`$MUSIC.$DOMAIN`|| `$MUSIC.$LOCAL.$DOMAIN` || `$MUSIC.internal.$DOMAIN`)"
+      - "traefik.http.routers.$MUSIC.entrypoints=https"
+      - "traefik.http.routers.$MUSIC.tls=true"
+      - "traefik.http.routers.$MUSIC.service=$MUSIC_svc"
+      - "traefik.http.routers.$MUSIC_http.rule=Host(`$MUSIC.$DOMAIN` || `$MUSIC.$LOCAL.$DOMAIN`|| `$MUSIC.internal.$DOMAIN`)  "
+      - "traefik.http.routers.$MUSIC_http.entrypoints=http"
+      - "traefik.http.routers.$MUSIC_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$MUSIC.tls.certresolver=myresolver"
+      - "traefik.http.services.$MUSIC_svc.loadbalancer.server.port=8686"
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+
+  $BOOKS:
+    container_name: $BOOKS
+    image: lscr.io/linuxserver/$BOOKS:develop
+    user: ${PUID}:${PGID}
+    expose:
+      - 8787
+    env_file:
+      - .env.common
+    volumes:
+      - /config/$BOOKS:/config
+      - /DATA/Downloads:/downloads
+      - /Libros/Biblioteca:/books
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$BOOKS.rule=Host(`$BOOKS.$DOMAIN`|| `$BOOKS.$LOCAL.$DOMAIN` || `$BOOKS.internal.$DOMAIN`)"
+      - "traefik.http.routers.$BOOKS.entrypoints=https"
+      - "traefik.http.routers.$BOOKS.tls=true"
+      - "traefik.http.routers.$BOOKS.service=$BOOKS_svc"
+      - "traefik.http.routers.$BOOKS_http.rule=Host(`$BOOKS.$DOMAIN` || `$BOOKS.$LOCAL.$DOMAIN`|| `$BOOKS.internal.$DOMAIN`)  "
+      - "traefik.http.routers.$BOOKS_http.entrypoints=http"
+      - "traefik.http.routers.$BOOKS_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$BOOKS.tls.certresolver=myresolver"
+      - "traefik.http.services.$BOOKS_svc.loadbalancer.server.port=8787"
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+
+  $PACK:
+    image: ghcr.io/hotio/$PACK
+    container_name: $PACK
+    volumes:
+      # You need at least this one volume mapped so Unpackerr can find your files to extract.
+      # Make sure this matches your Starr apps; the folder mount (/downloads or /data) should be identical.
+      - /DATA/Downloads:/downloads
+    restart: always
+    # Get the user:group correct so unpackerr can read and write to your files.
+    user: ${PUID}:${PGID}
+    #user: 1000:1000
+    # What you see below are defaults for this compose. You only need to modify things specific to your environment.
+    # Remove apps and feature configs you do not use or need. 
+    # ie. Remove all lines that begin with UN_CMDHOOK, UN_WEBHOOK, UN_FOLDER, UN_WEBSERVER, and other apps you do not use.
+    env_file:
+      - .env.common
+      - .env.$PACK
+    security_opt:
+      - no-new-privileges:true
+
+  $TRACKER:
+    container_name: $TRACKER
+    image: ghcr.io/hotio/$TRACKER
+    user: ${PUID}:${PGID}
+    expose:
+      - 9696
+    env_file:
+      - .env.common
+    volumes:
+      - /config/$TRACKER:/config
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$TRACKER.rule=Host(`$TRACKER.$DOMAIN`|| `$TRACKER.$LOCAL.$DOMAIN` || `$TRACKER.internal.$DOMAIN`)"
+      - "traefik.http.routers.$TRACKER.entrypoints=https"
+      - "traefik.http.routers.$TRACKER.tls=true"
+      - "traefik.http.routers.$TRACKER.service=$TRACKER_svc"
+      - "traefik.http.routers.$TRACKER_http.rule=Host(`$TRACKER.$DOMAIN` || `$TRACKER.$LOCAL.$DOMAIN`|| `$TRACKER.internal.$DOMAIN  `)"
+      - "traefik.http.routers.$TRACKER_http.entrypoints=http"
+      - "traefik.http.routers.$TRACKER_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$TRACKER.tls.certresolver=myresolver"
+      - "traefik.http.services.$TRACKER_svc.loadbalancer.server.port=9696"
+    networks:
+      - t2_proxy
+
+  qbitmanage:
+    container_name: qbitmanage
+    image: ghcr.io/hotio/qbitmanage
+    user: ${PUID}:${PGID}
+    env_file:
+      - .env.common
+    volumes:
+      - /config/$QMNGMT:/config
+      - /DATA/Downloads:/data
+
+  qbittorrent:
+    container_name: qbittorrent
+    image: ghcr.io/hotio/qbittorrent
+    user: ${PUID}:${PGID}
+    expose:
+      - 8080
+    env_file:
+      - .env.common
+    volumes:
+      - /config/$DOWNLOAD:/config
+      - /DATA/Downloads:/data
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$DOWNLOAD.rule=Host( `$DOWNLOAD.$LOCAL.$DOMAIN` )"
+      - "traefik.http.routers.$DOWNLOAD.entrypoints=https"
+      - "traefik.http.routers.$DOWNLOAD.tls=true"
+      - "traefik.http.routers.$DOWNLOAD.service=$DOWNLOAD_svc"
+      - "traefik.http.routers.$DOWNLOAD_http.rule=Host( `$DOWNLOAD.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$DOWNLOAD_http.entrypoints=http"
+      - "traefik.http.routers.$DOWNLOAD_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$DOWNLOAD.tls.certresolver=myresolver"
+      - "traefik.http.services.$DOWNLOAD_svc.loadbalancer.server.port=8080"
+    networks:
+      - t2_proxy
+
+  $SUBS:
+    container_name: $SUBS
+    image: ghcr.io/hotio/$SUBS
+    user: ${PUID}:${PGID}
+    expose:
+      - 6767
+    env_file:
+      - .env.common
+    volumes:
+      - /config/$SUBS:/config
+      - /DATA/Plex:/data
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$SUBS.rule=Host(`$SUBS.$DOMAIN`|| `$SUBS.$LOCAL.$DOMAIN` )"
+      - "traefik.http.routers.$SUBS.entrypoints=https"
+      - "traefik.http.routers.$SUBS.tls=true"
+      - "traefik.http.routers.$SUBS.service=$TV_svc"
+      - "traefik.http.routers.$SUBS_http.rule=Host(`$SUBS.$DOMAIN` || `$SUBS.$LOCAL.$DOMAIN` )"
+      - "traefik.http.routers.$SUBS_http.entrypoints=http"
+      - "traefik.http.routers.$SUBS_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$SUBS.tls.certresolver=myresolver"
+      - "traefik.http.services.$SUBS_svc.loadbalancer.server.port=6767"
+    networks:
+      - t2_proxy
+
+  $MEDIAJ:
+    container_name: $MEDIAJ
+    image: ghcr.io/hotio/$MEDIAJ
+    user: ${PUID}:${PGID}
+    expose:
+      - 8096
+    env_file:
+      - .env.common
+    volumes:
+      - /config/$MEDIAJ:/config
+      - /DATA/Plex:/data
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$MEDIAJ.rule=Host(`$MEDIAJ.$DOMAIN` || `$TV.$LOCAL.$DOMAIN` )"
+      - "traefik.http.routers.$MEDIAJ.entrypoints=https"
+      - "traefik.http.routers.$MEDIAJ.tls=true"
+      - "traefik.http.routers.$MEDIAJ.service=$TV_svc"
+      - "traefik.http.routers.$MEDIAJ_http.rule=Host(`$MEDIAJ.$DOMAIN` || `$MEDIAJ.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$MEDIAJ_http.entrypoints=http"
+      - "traefik.http.routers.$MEDIAJ_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$MEDIAJ.tls.certresolver=myresolver"
+      - "traefik.http.services.$MEDIAJ_svc.loadbalancer.server.port=8096"
+    networks:
+      - t2_proxy
+
+  $REQUESTS:
+    container_name: $REQUESTS
+    image: ghcr.io/hotio/$REQUESTS
+    user: ${PUID}:${PGID}
+    expose:
+      - 5055
+    env_file:
+      - .env.common
+    volumes:
+      - /config/$REQUESTS:/config
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$REQUESTS.rule=Host(`$REQUESTS.$DOMAIN`)"
+      - "traefik.http.routers.$REQUESTS.entrypoints=https"
+      - "traefik.http.routers.$REQUESTS.tls=true"
+      - "traefik.http.routers.$REQUESTS.service=$REQUESTS_svc"
+      - "traefik.http.routers.$REQUESTS_http.rule=Host(`$TV.$DOMAIN`)"
+      - "traefik.http.routers.$REQUESTS_http.entrypoints=http"
+      - "traefik.http.routers.$REQUESTS_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$REQUESTS.tls.certresolver=myresolver"
+      - "traefik.http.services.$REQUESTS_svc.loadbalancer.server.port=5055"
+    networks:
+      - t2_proxy
+
+  $DOWNMNGMT:
+    hostname: $DOWNMNGMT
+    image: jesec/$DOWNMNGMT
+    user: ${PUID}:${PGID}
+    restart: unless-stopped
+    command: --port 3001 --allowedpath /data
+    env_file:
+      - .env.common
+      - .env.$DOWNMNGMT
+    volumes:
+      - /config/$DOWNLOAD:/config
+      - /DATA/Downloads:/data
+    expose:
+      - 3001
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$DOWNMNGMT.rule=Host(`$DOWNMNGMT.$DOMAIN`|| `$DOWNMNGMT.$LOCAL.$DOMAIN` )"
+      - "traefik.http.routers.$DOWNMNGMT.entrypoints=https"
+      - "traefik.http.routers.$DOWNMNGMT.tls=true"
+      - "traefik.http.routers.$DOWNMNGMT.service=$TV_svc"
+      - "traefik.http.routers.$DOWNMNGMT_http.rule=Host(`$DOWNMNGMT.$DOMAIN` || `$DOWNMNGMT.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$DOWNMNGMT_http.entrypoints=http"
+      - "traefik.http.routers.$DOWNMNGMT_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$DOWNMNGMT.tls.certresolver=myresolver"
+      - "traefik.http.services.$DOWNMNGMT_svc.loadbalancer.server.port=3001"
+    networks:
+      - t2_proxy
+
+  $TAU:
+    container_name: $TAU
+    image: ghcr.io/hotio/$TAU
+    user: ${PUID}:${PGID}
+    expose:
+      - 8181
+    env_file:
+      - .env.common
+    volumes:
+      - /config/$TAU:/config
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$TAU.rule=Host(`$TAU.$DOMAIN`|| `$TAU.$LOCAL.$DOMAIN` || `$TAU.internal.$DOMAIN`)"
+      - "traefik.http.routers.$TAU.entrypoints=https"
+      - "traefik.http.routers.$TAU.tls=true"
+      - "traefik.http.routers.$TAU.service=$TV_svc"
+      - "traefik.http.routers.$TAU_http.rule=Host(`$TAU.$DOMAIN` || `$TAU.$LOCAL.$DOMAIN`|| `$TAU.internal.$DOMAIN  `)"
+      - "traefik.http.routers.$TAU_http.entrypoints=http"
+      - "traefik.http.routers.$TAU_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$TAU.tls.certresolver=myresolver"
+      - "traefik.http.services.$TAU_svc.loadbalancer.server.port=8181"
+    networks:
+      - t2_proxy
+
+  $WEB:
+    image: lscr.io/linuxserver/$WEB:latest
+    container_name: $WEB
+    user: ${PUID}:${PGID}
+    env_file:
+      - .env.common
+      - .env.$WEB
+    volumes:
+      - /config/$WEB:/config
+      - /Libros/Biblioteca:/books
+    expose:
+      - 8083
+    restart: unless-stopped
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$WEB.rule=Host(`$WEB.$DOMAIN`|| `$WEB.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$WEB.entrypoints=https"
+      - "traefik.http.routers.$WEB.tls=true"
+      - "traefik.http.routers.$WEB.service=$WEB_svc"
+      - "traefik.http.routers.$WEB_http.rule=Host(`$WEB.$DOMAIN` || `$WEB.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$WEB_http.entrypoints=http"
+      - "traefik.http.routers.$WEB_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$WEB.tls.certresolver=myresolver"
+      - "traefik.http.services.$WEB_svc.loadbalancer.server.port=8083"
+    networks:
+      - t2_proxy
+
+  $LIB:
+    image: lscr.io/linuxserver/$LIB:latest
+    container_name: $LIB
+    user: ${PUID}:${PGID}
+    security_opt:
+      - seccomp:unconfined #optional
+    env_file:
+      - .env.common
+      - .env.$LIB
+    volumes:
+      - /Libros/Bibliteca:/config
+    expose:
+      - 8080
+      - 8181
+      - 8081
+    restart: unless-stopped
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$LIB.rule=Host(`$LIB.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$LIB.entrypoints=https"
+      - "traefik.http.routers.$LIB.tls=true"
+      - "traefik.http.routers.$LIB.service=$LIB_svc"
+      - "traefik.http.routers.$LIB_http.rule=Host(`$LIB.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$LIB_http.entrypoints=http"
+      - "traefik.http.routers.$LIB_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$LIB.tls.certresolver=myresolver"
+      - "traefik.http.services.$LIB_svc.loadbalancer.server.port=8080"
+    networks:
+      - t2_proxy
+
+  $DOC:
+    image: lscr.io/linuxserver/$DOC:latest
+    container_name: $DOC
+    user: ${PUID}:${PGID}
+    env_file:
+      - .env.common
+      - .env.$DOC
+    volumes:
+      - /config/$DOC:/config
+    expose:
+      - 3000
+    restart: unless-stopped
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$DOC.rule=Host(`$DOC.$DOMAIN`|| `$DOC.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$DOC.entrypoints=https"
+      - "traefik.http.routers.$DOC.tls=true"
+      - "traefik.http.routers.$DOC.service=$DOC_svc"
+      - "traefik.http.routers.$DOC_http.rule=Host(`$DOC.$DOMAIN` || `$DOC.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$DOC_http.entrypoints=http"
+      - "traefik.http.routers.$DOC_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$DOC.tls.certresolver=myresolver"
+      - "traefik.http.services.$DOC_svc.loadbalancer.server.port=3000"
+    networks:
+      - t2_proxy
+
+  $MEDIA:
+    image: lscr.io/linuxserver/$MEDIA:latest
+    container_name: $MEDIA
+    user: ${PUID}:${PGID}
+    expose:
+      - 32400
+      - 8324
+      - 1900
+      - 32469
+      - 3005
+      - 33400
+    env_file:
+      - .env.common
+      - .env.$MEDIA
+    ports:
+      - "32410:32410/udp"
+      - "32412:32412/udp"
+      - "32413:32413/udp"
+      - "32414:32414/udp"
+    runtime: nvidia
+    volumes:
+      - /config/$MEDIA:/transcode
+      - /DATA/Plex:/data/media
+      - /config/plexms:/config
+    restart: unless-stopped
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$MEDIA.rule=Host(`$MEDIA.$DOMAIN`|| `$MEDIA.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$MEDIA.entrypoints=https"
+      - "traefik.http.routers.$MEDIA.tls=true"
+      - "traefik.http.routers.$MEDIA.service=$MEDIA_svc"
+      - "traefik.http.routers.$MEDIA_http.rule=Host(`$MEDIA.$DOMAIN` || `$MEDIA.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$MEDIA_http.entrypoints=http"
+      - "traefik.http.routers.$MEDIA_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$MEDIA.tls.certresolver=myresolver"
+      - "traefik.http.services.$MEDIA_svc.loadbalancer.server.port=32400"
+    networks:
+      - t2_proxy
+
+  $XTEVE:
+    image: dnsforge/xteve:latest
+    container_name: $XTEVE
+    user: ${PUID}:${PGID}
+    env_file:
+      - .env.common
+      - .env.$XTEVE
+    volumes:
+      - /config/xteve/conf:/home/xteve/conf
+      - /config/xteve/guide2go:/home/xteve/guide2go/conf
+    expose: 
+      - 34400
+    restart: unless-stopped
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$XTEVE.rule=Host(`$XTEVE.$DOMAIN`|| `$XTEVE.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$XTEVE.entrypoints=https"
+      - "traefik.http.routers.$XTEVE.tls=true"
+      - "traefik.http.routers.$XTEVE.service=$XTEVE_svc"
+      - "traefik.http.routers.$XTEVE_http.rule=Host(`$XTEVE.$DOMAIN` || `$XTEVE.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$XTEVE_http.entrypoints=http"
+      - "traefik.http.routers.$XTEVE_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$XTEVE.tls.certresolver=myresolver"
+      - "traefik.http.services.$XTEVE_svc.loadbalancer.server.port=34400"
+    networks:
+      - t2_proxy  
+
+  guide2go:
+    container_name: guide2go
+    image: chuchodavids/guide2go:stable
+    user: ${PUID}:${PGID}
+    expose:
+      - 8080
+    env_file:
+      - .env.common
+    volumes:
+      - /config/guide2go:/config
+      - /config/guide2go/livetv/:/data/livetv/
+      - /config/guide2go/images:/data/images/
+    restart: always
+
+  acelink:
+    container_name: acelink
+    image: blaiseio/acelink
+    user: ${PUID}:${PGID}
+    expose:
+      - 6878
+    env_file:
+      - .env.common
+    network_mode: host
+
+  autoscan:
+    container_name: autoscan
+    image: ghcr.io/hotio/autoscan
+    user: ${PUID}:${PGID}
+    expose:
+      - 3030
+    env_file:
+      - .env.common
+      - .env.autoscan
+    volumes:
+      - /config/autoscan:/config  
+
+networks:
+  default:
+    t2_proxy:
+      name: t2_proxy
+      external: true
+...
