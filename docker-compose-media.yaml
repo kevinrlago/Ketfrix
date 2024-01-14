@@ -416,7 +416,7 @@ services:
     networks:
       - t2_proxy
 
-  Plex:
+  plex:
     image: lscr.io/linuxserver/$MEDIA:latest
     container_name: $MEDIA
     user: ${PUID}:${PGID}
