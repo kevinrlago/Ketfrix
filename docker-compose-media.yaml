@@ -5,7 +5,7 @@ services:
   sonarr:
     image: ghcr.io/hotio/$TV:latest
     container_name: $TV
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     env_file:
       - .env.common
     volumes:
@@ -34,7 +34,7 @@ services:
   radarr:
     image: ghcr.io/hotio/$FILMS:latest
     container_name: $FILMS
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     env_file:
       - .env.common
     volumes:
@@ -63,7 +63,7 @@ services:
   lidarr:
     image: ghcr.io/hotio/$MUSIC:latest
     container_name: $MUSIC
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     env_file:
       - .env.common
     volumes:
@@ -92,7 +92,7 @@ services:
   readarr:
     container_name: $BOOKS
     image: lscr.io/linuxserver/$BOOKS:develop
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     expose:
       - 8787
     env_file:
@@ -126,7 +126,7 @@ services:
       - /DATA/Downloads:/downloads
     restart: always
     # Get the user:group correct so unpackerr can read and write to your files.
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     #user: 1000:1000
     # What you see below are defaults for this compose. You only need to modify things specific to your environment.
     # Remove apps and feature configs you do not use or need. 
@@ -140,7 +140,7 @@ services:
   prowlarr:
     container_name: $TRACKER
     image: ghcr.io/hotio/$TRACKER
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     expose:
       - 9696
     env_file:
@@ -165,7 +165,7 @@ services:
   qbitmanage:
     container_name: qbitmanage
     image: ghcr.io/hotio/qbitmanage
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     env_file:
       - .env.common
     volumes:
@@ -175,7 +175,7 @@ services:
   qbittorrent:
     container_name: qbittorrent
     image: ghcr.io/hotio/qbittorrent
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     expose:
       - 8080
     env_file:
@@ -227,7 +227,7 @@ services:
   jellyfin:
     container_name: $MEDIAJ
     image: ghcr.io/hotio/$MEDIAJ
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     expose:
       - 8096
     env_file:
@@ -253,7 +253,7 @@ services:
   overseerr:
     container_name: $REQUESTS
     image: ghcr.io/hotio/$REQUESTS
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     expose:
       - 5055
     env_file:
@@ -278,7 +278,7 @@ services:
   flood:
     container_name: $DOWNMNGMT
     image: jesec/$DOWNMNGMT
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     restart: unless-stopped
     command: --port 3001 --allowedpath /data
     env_file:
@@ -307,7 +307,7 @@ services:
   tautulli:
     container_name: $TAU
     image: ghcr.io/hotio/$TAU
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     expose:
       - 8181
     env_file:
@@ -332,7 +332,7 @@ services:
   calibre-web:
     image: lscr.io/linuxserver/$WEB:latest
     container_name: $WEB
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     env_file:
       - .env.common
       - .env.$WEB
@@ -360,7 +360,7 @@ services:
   calibre:
     image: lscr.io/linuxserver/$LIB:latest
     container_name: $LIB
-    user: ${PUID}:${PGID}
+   # user: ${PUID}:${PGID}
     security_opt:
       - seccomp:unconfined #optional
     env_file:
@@ -392,7 +392,7 @@ services:
   hedgedoc:
     image: lscr.io/linuxserver/$DOC:latest
     container_name: $DOC
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     env_file:
       - .env.common
       - .env.$DOC
@@ -459,7 +459,7 @@ services:
   XTEVE:
     image: dnsforge/xteve:latest
     container_name: $XTEVE
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     env_file:
       - .env.common
       - .env.$XTEVE
@@ -487,7 +487,7 @@ services:
   guide2go:
     container_name: guide2go
     image: chuchodavids/guide2go:stable
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     expose:
       - 8080
     env_file:
@@ -501,7 +501,7 @@ services:
   acelink:
     container_name: acelink
     image: blaiseio/acelink
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     expose:
       - 6878
     env_file:
@@ -512,7 +512,7 @@ services:
   autoscan:
     container_name: autoscan
     image: ghcr.io/hotio/autoscan
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     expose:
       - 3030
     env_file:
