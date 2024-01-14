@@ -419,7 +419,7 @@ services:
   plex:
     image: lscr.io/linuxserver/$MEDIA:latest
     container_name: $MEDIA
-    user: ${PUID}:${PGID}
+    #user: ${PUID}:${PGID}
     expose:
       - 32400
       - 8324
