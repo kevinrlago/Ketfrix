@@ -180,6 +180,8 @@ services:
       - 8080
     env_file:
       - .env.common
+    environment:
+      - UMASK=002
     volumes:
       - /config/$DOWNLOAD:/config
       - /DATA/Downloads:/downloads
