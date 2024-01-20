@@ -1,0 +1,178 @@
+---
+version: "2.1"
+services:
+  kasm:
+    image: lscr.io/linuxserver/kasm:latest
+    container_name: kasm
+    priviledged: true
+    env_files:
+      - .env.common
+      - .env.nvidia
+      - .env.kasm
+    volumes:
+      - /config/kasm/opt:/opt
+      - /config/kasm/profiles:/profiles
+      - /dev/input:/dev/input
+      - /run/udev/data:/run/udev/data
+    expose:
+      - 443
+      - 3000
+    labels:
+     - "traefik.docker.network=t2_proxy"
+     - "traefik.enable=true"
+     - "traefik.http.routers.$VM.rule=Host(`$VM.$DOMAIN`)"
+     - "traefik.http.routers.$VM.entrypoints=https"
+     - "traefik.http.routers.$VM.tls=true"
+     - "traefik.http.routers.$VM.service=${VM}_svc"
+     - "traefik.http.routers.${VM}_http.rule=Host(`$VM.$DOMAIN`)"
+     - "traefik.http.routers.${VM}_http.entrypoints=http"
+     - "traefik.http.routers.${VM}_http.middlewares=chain-authelia@file"
+     - "traefik.http.routers.$VM.tls.certresolver=myresolver"
+     - "traefik.http.services.${VM}_svc.loadbalancer.server.port=443"
+     - "traefik.http.routers.$VM_admin.rule=((Host(`$VM.$DOMAIN`) || Host(`$VM.$LOCAL.$DOMAIN`)) && Path(`/admin`))"
+     - "traefik.http.routers.$VM_admin.entrypoints=https"
+     - "traefik.http.routers.$VM_admin.tls=true"
+     - "traefik.http.routers.$VM_admin.service=${VM}_admin_svc"
+     - "traefik.http.routers.${VM}_admin_http.rule=((Host(`$VM.$DOMAIN`) || Host(`$VM.$LOCAL.$DOMAIN`)) && Path(`/admin`))"
+     - "traefik.http.routers.${VM}_admin_http.entrypoints=http"
+     - "traefik.http.routers.${VM}_admin_http.middlewares=chain-authelia@file"
+     - "traefik.http.routers.$VM_admin.tls.certresolver=myresolver"
+     - "traefik.http.services.${VM}_admin_svc.loadbalancer.server.port=3000"     
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+  # grocy:
+  #   image: lscr.io/linuxserver/grocy:latest
+  #   container_name: grocy
+  #   priviledged: true
+  #   env_files:
+  #     - .env.common
+  #     - 
+  #     - 
+  #   volumes: 
+  #     -  
+  #     - 
+  #     - 
+  #   labels:
+  #    - "traefik.docker.network=t2_proxy"
+  #    - "traefik.enable=true"
+  #    - "traefik.http.routers.$BAG.rule=Host(`$BAG.$DOMAIN`)"
+  #    - "traefik.http.routers.$BAG.entrypoints=https"
+  #    - "traefik.http.routers.$BAG.tls=true"
+  #    - "traefik.http.routers.$BAG.service=${BAG}_svc"
+  #    - "traefik.http.routers.${BAG}_http.rule=Host(`$BAG.$DOMAIN`)"
+  #    - "traefik.http.routers.${BAG}_http.entrypoints=http"
+  #    - "traefik.http.routers.${BAG}_http.middlewares=chain-authelia@file"
+  #    - "traefik.http.routers.$BAG.tls.certresolver=myresolver"
+  #    - "traefik.http.services.${BAG}_svc.loadbalancer.server.port=443"  
+    # networks:
+    #   - t2_proxy      
+  netbootxyz:
+    image: lscr.io/linuxserver/netbootxyz:latest
+    container_name: netbootxyz
+    env_files:
+      - .env.common
+      - .env.$NBXYZ
+    volumes: 
+      - /config/netbootxyz/config:/config
+      - /config/netbootxyz/assets:/assets
+    expose:
+      - 3000
+      - 69
+      - 80
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$NBXYZ.rule=Host(`$NBXYZ.$DOMAIN`)"
+      - "traefik.http.routers.$NBXYZ.entrypoints=https"
+      - "traefik.http.routers.$NBXYZ.tls=true"
+      - "traefik.http.routers.$NBXYZ.service=${NBXYZ}_svc"
+      - "traefik.http.routers.${NBXYZ}_http.rule=Host(`$NBXYZ.$DOMAIN`)"
+      - "traefik.http.routers.${NBXYZ}_http.entrypoints=http"
+      - "traefik.http.routers.${NBXYZ}_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$NBXYZ.tls.certresolver=myresolver"
+      - "traefik.http.services.${NBXYZ}_svc.loadbalancer.server.port=3000" 
+    networks:
+      - t2_proxy
+
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    expose:
+      - 3000
+    env_files: 
+      - .env.common
+      - .env.$HP
+    volumes:
+      - /config/homepage:/app/config 
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$HP.rule=Host(`www.$DOMAIN`) || Host(`$HP.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$HP.entrypoints=https"
+      - "traefik.http.routers.$HP.tls=true"
+      - "traefik.http.routers.$HP.service=${HP}_svc"
+      - "traefik.http.routers.${HP}_http.rule=Host(`www.$DOMAIN`) || Host(`$HP.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.${HP}_http.entrypoints=http"
+      - "traefik.http.routers.${HP}_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$HP.tls.certresolver=myresolver"
+      - "traefik.http.services.${HP}_svc.loadbalancer.server.port=3000" 
+    networks:
+      - t2_proxy
+
+  shlink:
+    image: shlinkio/shlink:stable
+    restart: always
+    container_name: shlink-backend
+    env_files:
+      - .env.common
+      - .env.$SHLB
+    depends_on:
+      - database
+    expose:
+      - 8080
+    networks:
+      - t2_proxy
+
+  database:
+    image: mariadb:latest
+    restart: always
+    container_name: shlink-database
+    env_files:
+      - .env.common
+      - .env.$SHLDB
+    volumes:
+      - /config/shlink:/var/lib/mysql
+    networks:
+      - t2_proxy
+
+  shlink-web-client:
+    image: shlinkio/shlink-web-client
+    restart: always
+    container_name: shlink
+    volumes:
+      - /config/shlink/servers.json:/usr/share/nginx/html/servers.json
+    depends_on:
+      - shlink
+    expose:
+      - 80
+    labels:
+      - "traefik.docker.network=t2_proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$SHL.rule=Host(`www.$DOMAIN`) || Host(`$SHL.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$SHL.entrypoints=https"
+      - "traefik.http.routers.$SHL.tls=true"
+      - "traefik.http.routers.$SHL.service=${SHL}_svc"
+      - "traefik.http.routers.${SHL}_http.rule=Host(`www.$DOMAIN`) || Host(`$SHL.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.${SHL}_http.entrypoints=http"
+      - "traefik.http.routers.${SHL}_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$SHL.tls.certresolver=myresolver"
+      - "traefik.http.services.${SHL}_svc.loadbalancer.server.port=3000" 
+    networks:
+      - t2_proxy
+networks:
+  t2_proxy:
+    name: t2_proxy
+    external: true
+
