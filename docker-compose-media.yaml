@@ -6,6 +6,8 @@ services:
     image: ghcr.io/hotio/$TV:latest
     container_name: $TV
     #user: ${PUID}:${PGID}
+    depends_on:
+      - prowlarr
     env_file:
       - .env.common
     volumes:
@@ -35,6 +37,8 @@ services:
     image: ghcr.io/hotio/$FILMS:latest
     container_name: $FILMS
     #user: ${PUID}:${PGID}
+    depends_on:
+      - prowlarr
     env_file:
       - .env.common
     volumes:
@@ -64,11 +68,13 @@ services:
     image: ghcr.io/hotio/$MUSIC:latest
     container_name: $MUSIC
     #user: ${PUID}:${PGID}
+    depends_on:
+      - prowlarr
     env_file:
       - .env.common
     volumes:
       - /config/$MUSIC:/config
-      - /DATA/Plex/films:/movies
+      - /DATA/Plex/Musica:/music
       - /DATA/Downloads/$MUSIC:/downloads
       - /DATA/Downloads/$MUSIC-downloaded:/downloaded
     expose:
@@ -93,6 +99,8 @@ services:
     container_name: $BOOKS
     image: lscr.io/linuxserver/$BOOKS:develop
     #user: ${PUID}:${PGID}
+    depends_on:
+      - prowlarr
     expose:
       - 8787
     env_file:
@@ -141,6 +149,9 @@ services:
     container_name: $TRACKER
     image: ghcr.io/hotio/$TRACKER
     #user: ${PUID}:${PGID}
+    restart: always
+    depends_on:
+      - qbittorrent
     expose:
       - 9696
     env_file:
@@ -166,6 +177,9 @@ services:
     container_name: qbitmanage
     image: ghcr.io/hotio/qbitmanage
     #user: ${PUID}:${PGID}
+    restart: always
+    depends_on:
+      - qbittorrent
     env_file:
       - .env.common
     volumes:
@@ -176,6 +190,7 @@ services:
     container_name: qbittorrent
     image: lscr.io/linuxserver/qbittorrent:latest
     #user: ${PUID}:${PGID}
+    restart: always
     expose:
       - 8080
     ports:
@@ -233,10 +248,13 @@ services:
     container_name: $MEDIAJ
     image: ghcr.io/hotio/$MEDIAJ
     #user: ${PUID}:${PGID}
+    runtime: nvidia
+    restart: always
     expose:
       - 8096
     env_file:
       - .env.common
+      - .env.nvidia
     volumes:
       - /config/$MEDIAJ:/config
       - /DATA/Plex:/data
@@ -259,6 +277,10 @@ services:
     container_name: $REQUESTS
     image: ghcr.io/hotio/$REQUESTS
     #user: ${PUID}:${PGID}
+    restart: always
+    depends_on:
+      - sonarr
+      - radarr
     expose:
       - 5055
     env_file:
@@ -282,9 +304,11 @@ services:
 
   flood:
     container_name: $DOWNMNGMT
-    image: jesec/$DOWNMNGMT
-    #user: ${PUID}:${PGID}
+    image: jesec/$DOWNMNGMT:master
+    user: ${PUID}:${PGID}
     restart: unless-stopped
+    depends_on:
+      - qbittorrent
     command: --port 3001 --allowedpath /data
     env_file:
       - .env.common
@@ -313,6 +337,9 @@ services:
     container_name: $TAU
     image: ghcr.io/hotio/$TAU
     #user: ${PUID}:${PGID}
+    restart: always
+    depends_on:
+      - plex
     expose:
       - 8181
     env_file:
@@ -395,7 +422,7 @@ services:
       - t2_proxy
 
   hedgedoc:
-    image: lscr.io/linuxserver/$DOC:latest
+    image: quay.io/hedgedoc/hedgedoc:latest
     container_name: $DOC
     #user: ${PUID}:${PGID}
     env_file:
@@ -406,6 +433,8 @@ services:
     expose:
       - 3000
     restart: unless-stopped
+    depends_on:
+      - database    
     labels:
       - "traefik.docker.network=t2_proxy"
       - "traefik.enable=true"
@@ -418,6 +447,17 @@ services:
       - "traefik.http.routers.${DOC}_http.middlewares=chain-authelia@file"
       - "traefik.http.routers.$DOC.tls.certresolver=myresolver"
       - "traefik.http.services.${DOC}_svc.loadbalancer.server.port=3000"
+    networks:
+      - t2_proxy
+
+  database:
+    image: postgres:13.4-alpine
+    container_name: $DOCDB
+    env_file:
+      - .env.$DOCDB
+    volumes:
+      - /config/$DOC/postgresql:/var/lib/postgresql/data
+    restart: always
     networks:
       - t2_proxy
 
@@ -435,6 +475,7 @@ services:
     env_file:
       - .env.common
       - .env.$MEDIA
+      - .env.nvidia
     ports:
       - "32410:32410/udp"
       - "32412:32412/udp"
@@ -465,6 +506,9 @@ services:
     image: dnsforge/xteve:latest
     container_name: $XTEVE
     #user: ${PUID}:${PGID}
+    depends_on:
+      - acelink
+      - guide2go
     env_file:
       - .env.common
       - .env.$XTEVE
@@ -518,6 +562,8 @@ services:
     container_name: autoscan
     image: ghcr.io/hotio/autoscan
     #user: ${PUID}:${PGID}
+    depends_on:
+      - plex
     expose:
       - 3030
     env_file:
