@@ -1,0 +1,15 @@
+proposals.temp
+**/.env
+**/.env.*
+./authentication
+./communications
+./domotica
+./ingress
+./kasm
+./monitoring
+./network
+./productivity
+docker-compose-portainer.yaml
+docker-compose-plex.yaml
+
+
