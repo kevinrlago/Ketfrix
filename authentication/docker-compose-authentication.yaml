@@ -1,0 +1,174 @@
+version: "3.6"
+
+services:
+  authelia:
+    container_name: "authelia"
+    image: "authelia/authelia" 
+    restart: "always"
+    expose:
+      - "9091/tcp"    
+    entrypoint:
+      - "/app/entrypoint.sh"
+    working_dir: "/app"
+    command:
+      - "--config"
+      - "/config/configuration.yml"
+    env_file:
+      - .env.common
+      - .env.phpldapadmin
+    environment:
+      - "PUID=969"
+      - "PGID=1001"
+      - "TZ=Europe/Madrid"
+      - "PATH=/app:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    volumes:
+      - "/config/authelia:/config"
+    labels:
+      traefik.docker.network: "authentication"
+      traefik.enable: "true"
+      traefik.http.routers.authelia.entrypoints: "https"
+      traefik.http.routers.authelia.rule: "Host(`auth.ketfrix.es`)"
+      traefik.http.routers.authelia.tls: "true"
+    networks:
+      - "authentication"
+      - "authelia"
+    logging:
+      driver: "json-file"
+      options: {}
+
+  openldap:
+    container_name: "openldap"
+    image: "osixia/openldap:latest"
+    expose:
+      - "389/tcp"
+      - "636/tcp"
+    entrypoint:
+      - "/container/tool/run"
+    restart: "always"
+    hostname: "ldap.prat.ketfrix.es"    
+    env_file:
+      - .env.common
+      - .env.openldap
+    labels:
+      traefik.docker.network: "t2_proxy"
+      traefik.enable: "true"
+      traefik.tcp.routers.openldap.entrypoints: "ldap"
+      traefik.tcp.routers.openldap.rule: "HostSNI(`ldap.prat.ketfrix.es`)"
+      traefik.tcp.routers.openldap.service: "openldap_svc"
+      traefik.tcp.routers.openldap.tls: "true"
+      traefik.tcp.routers.openldap.tls.certresolver: "myresolver"
+      traefik.tcp.services.openldap_svc.loadbalancer.server.port: "636"
+    volumes:
+      - "/config/openldap/assets:/container/service/slapd/assets"
+      - "/config/openldap/etc/ldap/slapd.d:/etc/ldap/slapd.d"
+      - "/config/openldap/var/lib/ldap:/var/lib/ldap"      
+    networks:
+      - "openldap"
+      - "authentication"
+      - "authelia"
+    logging:
+      driver: "json-file"
+      options: {}
+
+  phpldapadmin:
+    container_name: "phpldapadmin"
+    image: "osixia/phpldapadmin:latest"
+    restart: "always"    
+    expose:
+      - "443/tcp"
+      - "80/tcp"
+    entrypoint:
+      - "/container/tool/run"
+    hostname: "phpldapadmin.prat.ketfrix.es"
+    env_file:
+      - .env.common
+      - .env.phpldapadmin
+    labels:
+      traefik.docker.network: "t2_proxy"
+      traefik.enable: "true"
+      traefik.http.routers.phpldapadmin.entrypoints: "https"
+      traefik.http.routers.phpldapadmin.rule: "Host(`phpldapadmin.prat.ketfrix.es`)"
+      traefik.http.routers.phpldapadmin.service: "phpldapadmin_svc"
+      traefik.http.routers.phpldapadmin.tls: "true"
+      traefik.http.routers.phpldapadmin.tls.certresolver: "myresolver"
+      traefik.http.routers.phpldapadmin_http.middlewares: "chain-no-auth@file"
+      traefik.http.services.phpldapadmin_svc.loadbalancer.server.port: "80"
+    networks:
+      - "authentication"
+      - "openldap"
+    logging:
+      driver: "json-file"
+      options: {}
+    volumes:
+      - "/config/phpldapadmin/99-default:/container/environment/99-default"
+      - "9340e8e462c1e082f764dfab610637a9d7ab0c1da130f9f646497da33e08472a:/var/www/phpldapadmin"
+
+  redis:
+    container_name: "redis"
+    image: "bitnami/redis:latest"
+    user: "1001"    
+    restart: "always"
+    expose:
+      - "6379/tcp"            
+    command:
+      - "/opt/bitnami/scripts/redis/run.sh"
+    entrypoint:
+      - "/opt/bitnami/scripts/redis/entrypoint.sh"
+    env_file:
+      - .env.common
+      - .env.redis
+    labels:
+      traefik.docker.network: "t2_proxy"
+      traefik.enable: "true"
+      traefik.tcp.routers.redis.entrypoints: "redis"
+      traefik.tcp.routers.redis.rule: "HostSNI(`redis.ketfrix.es`) || HostSNI(`redis.prat.ketfrix.es`)"
+      traefik.tcp.routers.redis.service: "redis_svc"
+      traefik.tcp.routers.redis.tls: "true"
+      traefik.tcp.routers.redis.tls.certresolver: "myresolver"
+      traefik.tcp.services.redis_svc.loadbalancer.server.port: "6379"
+    networks:
+      - "authentication"
+      - "authelia"
+    logging:
+      driver: "json-file"
+      options: {}
+
+volumes:
+  9340e8e462c1e082f764dfab610637a9d7ab0c1da130f9f646497da33e08472a:
+    external: true
+
+networks:
+  authentication:
+    name: "authentication"
+  openldap:
+    name: "openldap"
+  authelia:
+    name: "authelia"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
