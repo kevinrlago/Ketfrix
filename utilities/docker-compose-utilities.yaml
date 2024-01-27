@@ -1,62 +1,7 @@
 ---
 version: "3.8"
 services:
-  kasm:
-    image: lscr.io/linuxserver/kasm:latest
-    container_name: kasm
-    restart: always
-    privileged: true
-    depends_on:
-      - otel
-    env_file:
-      - .env.common
-      - .env.nvidia
-      - .env.kasm
-    volumes:
-      - /config/kasm/opt:/opt
-      - /config/kasm/profiles:/profiles
-      - /dev/input:/dev/input
-      - /run/udev/data:/run/udev/data
-    expose:
-      - 443
-      - 3000
-    labels:
-      - "traefik.docker.network=t2_proxy"
-      - "traefik.enable=true"
-      - "traefik.http.routers.$VM.rule=Host(`$VM.$DOMAIN`)"
-      - "traefik.http.routers.$VM.entrypoints=https"
-      - "traefik.http.routers.$VM.tls=true"
-      - "traefik.http.routers.$VM.service=${VM}_svc"
-      - "traefik.http.routers.${VM}_http.rule=Host(`$VM.$DOMAIN`)"
-      - "traefik.http.routers.${VM}_http.entrypoints=http"
-      - "traefik.http.routers.${VM}_http.middlewares=chain-authelia@file"
-      - "traefik.http.routers.$VM.tls.certresolver=myresolver"
-      - "traefik.http.services.${VM}_svc.loadbalancer.server.port=443"
-      - "traefik.http.service.${VM}_svc.loadbalancer.server.scheme=https"
-      - "traefik.http.services.${VM}_svc.loadbalancer.serverstransport=ignorecert"
-      - "traefik.http.routers.${VM}_admin.rule=((Host(`$VM.$DOMAIN`) || Host(`$VM.$LOCAL.$DOMAIN`)) && Path(`/admin`))"
-      - "traefik.http.routers.${VM}_admin.entrypoints=https"
-      - "traefik.http.routers.${VM}_admin.tls=true"
-      - "traefik.http.routers.${VM}_admin.service=${VM}_admin_svc"
-      - "traefik.http.routers.${VM}_admin_http.rule=((Host(`$VM.$DOMAIN`) || Host(`$VM.$LOCAL.$DOMAIN`)) && Path(`/admin`))"
-      - "traefik.http.routers.${VM}_admin_http.entrypoints=http"
-      - "traefik.http.routers.${VM}_admin_http.middlewares=chain-authelia@file"
-      - "traefik.http.routers.${VM}_admin.tls.certresolver=myresolver"
-      - "traefik.http.services.${VM}_admin_svc.loadbalancer.server.port=3000"
-      - "traefik.http.service.${VM}_admin_svc.loadbalancer.server.scheme=https"
-      - "traefik.http.services.${VM}_admin_svc.loadbalancer.serverstransport=ignorecert"
-    networks:
-      - t2_proxy
-  otel:
-    image: "otel/opentelemetry-collector:latest"
-    container_name: otel
-    command: ["--config=/etc/otel-collector-config.yml"]
-    volumes:
-      - /config/OpenTelemetry/otel-collector-config.yml:/etc/otel-collector-config.yml
-    networks:
-      - t2_proxy
-    expose:
-      - 4318
+
   # grocy:
   #   image: lscr.io/linuxserver/grocy:latest
   #   container_name: grocy
@@ -70,7 +15,7 @@ services:
   #     - 
   #     - 
   #   labels:
-  #    - "traefik.docker.network=t2_proxy"
+  #    - "traefik.docker.network=utilities"
   #    - "traefik.enable=true"
   #    - "traefik.http.routers.$BAG.rule=Host(`$BAG.$DOMAIN`)"
   #    - "traefik.http.routers.$BAG.entrypoints=https"
@@ -82,7 +27,7 @@ services:
   #    - "traefik.http.routers.$BAG.tls.certresolver=myresolver"
   #    - "traefik.http.services.${BAG}_svc.loadbalancer.server.port=443"  
     # networks:
-    #   - t2_proxy      
+    #   - utilities      
   netbootxyz:
     image: lscr.io/linuxserver/netbootxyz:latest
     container_name: netbootxyz
@@ -98,7 +43,7 @@ services:
       - 69
       - 80
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=utilities"
       - "traefik.enable=true"
       - "traefik.http.routers.$NBXYZ.rule=Host(`$NBXYZ.$DOMAIN`)"
       - "traefik.http.routers.$NBXYZ.entrypoints=https"
@@ -110,7 +55,7 @@ services:
       - "traefik.http.routers.$NBXYZ.tls.certresolver=myresolver"
       - "traefik.http.services.${NBXYZ}_svc.loadbalancer.server.port=3000" 
     networks:
-      - t2_proxy
+      - utilities
 
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
@@ -125,7 +70,7 @@ services:
       - /config/homepage:/app/config 
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=utilities"
       - "traefik.enable=true"
       - "traefik.http.routers.$HP.rule=Host(`www.$DOMAIN`) || Host(`$HP.$LOCAL.$DOMAIN`)"
       - "traefik.http.routers.$HP.entrypoints=https"
@@ -137,7 +82,7 @@ services:
       - "traefik.http.routers.$HP.tls.certresolver=myresolver"
       - "traefik.http.services.${HP}_svc.loadbalancer.server.port=3000" 
     networks:
-      - t2_proxy
+      - utilities
 
   shlink:
     image: shlinkio/shlink:stable
@@ -151,7 +96,7 @@ services:
     expose:
       - 8080
     networks:
-      - t2_proxy
+      - utilities
 
   database:
     image: mariadb:latest
@@ -163,7 +108,7 @@ services:
     volumes:
       - /config/shlink/mariadb:/var/lib/mysql
     networks:
-      - t2_proxy
+      - utilities
 
   shlink-web-client:
     image: shlinkio/shlink-web-client
@@ -176,7 +121,7 @@ services:
     expose:
       - 80
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=utilities"
       - "traefik.enable=true"
       - "traefik.http.routers.$SHL.rule=Host(`$SHL.$DOMAIN`) || Host(`$SHL.$LOCAL.$DOMAIN`)"
       - "traefik.http.routers.$SHL.entrypoints=https"
@@ -188,9 +133,9 @@ services:
       - "traefik.http.routers.$SHL.tls.certresolver=myresolver"
       - "traefik.http.services.${SHL}_svc.loadbalancer.server.port=80" 
     networks:
-      - t2_proxy
+      - utilities
 networks:
-  t2_proxy:
-    name: t2_proxy
-    external: true
+  utilities:
+    name: "utilities"
+
 
