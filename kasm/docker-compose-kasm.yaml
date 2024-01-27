@@ -8,7 +8,7 @@ services:
       timeout: 5s
       retries: 20
     networks:
-      - kasm_default_network
+      - kasm_internal
     env_file:
       - .env.kasm-postgres
     volumes:
@@ -34,7 +34,7 @@ services:
     user: "${PUID}:${PGID}"
     image: redis:5-alpine
     networks:
-      - kasm_default_network
+      - kasm_internal
     env_file:
       - .env.kasm-redis
     logging:
@@ -50,7 +50,7 @@ services:
     image: "kasmweb/api:1.14.0"
     read_only: true
     networks:
-      - kasm_default_network
+      - kasm_internal
     volumes:
       - /config/kasm/1.14.0:/opt/kasm/current
       - /config/kasm/1.14.0/tmp/api:/tmp
@@ -69,7 +69,7 @@ services:
     image: "kasmweb/manager:1.14.0"
     read_only: true
     networks:
-      - kasm_default_network
+      - kasm_internal
     volumes:
       - /config/kasm/1.14.0:/opt/kasm/current
     depends_on:
@@ -87,7 +87,7 @@ services:
     image: "kasmweb/agent:1.14.0"
     read_only: true
     networks:
-      - kasm_default_network
+      - kasm_internal
     volumes:
       - /config/kasm/1.14.0:/opt/kasm/current
       - /var/run/docker.sock:/var/run/docker.sock
@@ -107,7 +107,7 @@ services:
     image: "kasmweb/share:1.14.0"
     read_only: true
     networks:
-      - kasm_default_network
+      - kasm_internal
     volumes:
       - /config/kasm/1.14.0:/opt/kasm/current
     restart: always
@@ -126,7 +126,7 @@ services:
     image: "kasmweb/kasm-guac:1.14.0"
     read_only: true
     networks:
-      - kasm_default_network
+      - kasm_internal
     volumes:
       - /config/kasm/1.14.0:/opt/kasm/current
       - /config/kasm/1.14.0/tmp/guac:/tmp
@@ -143,8 +143,8 @@ services:
     expose:
       - 443
     networks:
-      - kasm_default_network
-      - t2_proxy
+      - kasm_internal
+      - kasm
     volumes:
       - /config/kasm/1.14.0/conf/nginx:/etc/nginx/conf.d:ro
       - /config/kasm/1.14.0/certs/kasm_nginx.key:/etc/ssl/private/kasm_nginx.key
@@ -165,7 +165,7 @@ services:
         max-size: "10m"
         max-file: "20"
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=kasm"
       - "traefik.enable=true"
       - "traefik.http.routers.$VM.rule=Host(`$VM.$DOMAIN`)"
       - "traefik.http.routers.$VM.entrypoints=https"
@@ -181,9 +181,9 @@ volumes:
     external: true
 
 networks:
-  kasm_default_network:
-    name: kasm_network
-    external: true
-  t2_proxy:
-    name: t2_proxy
-    external: true
+  kasm:
+    name: "kasm"
+  kasm_internal:
+    name: "kasm_internal"
+
+

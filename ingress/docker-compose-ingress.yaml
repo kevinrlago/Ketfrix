@@ -147,4 +147,6 @@ networks:
     name: "pass_mgmt"
   ddclient:
     name: "ddclient"
+  kasm:
+    name: "kasm"
 
