@@ -1,62 +1,35 @@
-networks:
-  t2_proxy:
-    external: true
-    name: "t2_proxy"
-  t3_proxy:
-    external: true
-    name: "t3_proxy"
+version: "3.6"
 
 services:
   traefik:
-
+    container_name: "traefik"
+    image: "traefik:latest"
+    env_file:
+      - .env.common
+      - .env.$TRAEFIK
+    restart: "always"
+    ports:
+      - "443:443/tcp"
+      - "80:80/tcp"      
+    volumes:
+      - "/config/traefik/letsencrypt:/letsencrypt"
+      - "/config/traefik/logs:/logs"
+      - "/config/traefik/plugins:/plugins-local"
+      - "/config/traefik/rules:/rules"
+      - "/config/traefik:/config"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"   
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "gateway.docker.internal:host-gateway"
     command:
       - "--experimental.hub=true"
       - "--hub.tls.insecure=false"
       - "--metrics.prometheus.addrouterslabels=false"
       - "--configFile=/config/traefik.yml"
-
-    container_name: "traefik"
-
     entrypoint:
       - "/entrypoint.sh"
-
-    environment:
-      - "PUID=969"
-      - "PGID=1001"
-      - "TZ=Europe/Madrid"
-      - "OVH_ENDPOINT=ovh-eu"
-      - "OVH_APPLICATION_KEY=bb1483866aaa2639"
-      - "OVH_APPLICATION_SECRET=9d9676d7a6f88d0e76a4986ec4da3ad4"
-      - "OVH_CONSUMER_KEY=04b1a9f485ae816b9a68b7d1220a3ef9"
-      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-      - "gateway.docker.internal:host-gateway"
-
-    hostname: "47991c7e04bd"
-
-    image: "traefik:latest"
-
-    ipc: "private"
-
     labels:
-      com.docker.compose.config-hash: "fbf381ee9ab9445dae0b4c17f45e0366148fad72499aeac2a656898b79bd439f"
-      com.docker.compose.container-number: "1"
-      com.docker.compose.oneoff: "False"
-      com.docker.compose.project: "traefik"
-      com.docker.compose.project.config_files: "docker-compose.yml"
-      com.docker.compose.project.working_dir: "/config/traefik"
-      com.docker.compose.service: "traefik"
-      com.docker.compose.version: "1.29.2"
-      org.opencontainers.image.description: "A modern reverse-proxy"
-      org.opencontainers.image.documentation: "https://docs.traefik.io"
-      org.opencontainers.image.source: "https://github.com/traefik/traefik"
-      org.opencontainers.image.title: "Traefik"
-      org.opencontainers.image.url: "https://traefik.io"
-      org.opencontainers.image.vendor: "Traefik Labs"
-      org.opencontainers.image.version: "v2.10.7"
-      traefik.docker.network: "t2_proxy"
+      traefik.docker.network: "ingress"
       traefik.enable: "true"
       traefik.http.routers.api.entrypoints: "https"
       traefik.http.routers.api.middlewares: "chain-authelia@file"
@@ -64,28 +37,114 @@ services:
       traefik.http.routers.api.service: "api@internal"
       traefik.http.routers.api.tls: "true"
       traefik.http.routers.api.tls.certresolver: "myresolver"
-
+    networks:
+      - "ingress"    
+      - "t3_proxy"
+      - "t2_proxy"
+      - "media"
+      - "authentication"
+      - "monitoring"
+      - "network"
+      - "utilities"
+      - "communications"
+      - "productivity"
+      - "domotica"
+      - "pass_mgmt"
     logging:
       driver: "json-file"
       options: {}
 
-    networks:
-      - "t3_proxy"
-      - "t2_proxy"
-
-    ports:
-      - "443:443/tcp"
-      - "80:80/tcp"
-
-    restart: "unless-stopped"
-
+  ddclient:
+    container_name: "ddclient"
+    image: "ghcr.io/linuxserver/ddclient:latest"
+    restart: "always"
+    env_file:
+      - .env.common
+      - .env.$DDCLIENT
+    working_dir: "/"  
+    entrypoint:
+      - "/init"
     volumes:
-      - "/config/traefik/letsencrypt:/letsencrypt"
-      - "/config/traefik/logs:/logs"
-      - "/config/traefik/plugins:/plugins-local"
-      - "/config/traefik/rules:/rules"
-      - "/config/traefik:/config"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/config/ddclient:/config"
+    networks:
+      - "ddclient"
+    logging:
+      driver: "json-file"
+      options: {}
 
-version: "3.6"
+  crowdsec:
+    container_name: "crowdsec"
+    image: "crowdsecurity/crowdsec:latest"
+    restart: "always"
+    expose:
+      - "6060/tcp"
+      - "8080/tcp"
+    env_file:
+      - .env.common
+      - .env.$CROWDSEC
+    volumes:
+      - "/config/crowdsec/config:/etc/crowdsec"
+      - "/config/crowdsec/data:/var/lib/crowdsec/data"
+      - "/config/traefik/logs/access:/logs/web:ro"
+      - "/var/log:/var/log:ro"
+    security_opt:
+      - "no-new-privileges:true"
+    entrypoint:
+      - "/bin/sh"
+      - "-c"
+      - "/bin/bash /docker_start.sh"
+    logging:
+      driver: "json-file"
+      options: {}
+    networks:
+      - "ingress"
+
+  # traefik-bouncer:
+  #   container_name: "traefik-bouncer"
+  #   image: "fbonalair/traefik-crowdsec-bouncer"
+  #   command:
+  #     - "/app"        
+  #   restart: "always"
+  #   expose:
+  #     - "8080/tcp"
+  #   env_file:
+  #     - .env.common
+  #     - .env.$BOUNCER
+  #   networks:
+  #     - "ingress"
+  #   logging:
+  #     driver: "json-file"
+  #     options: {}
+  #   security_opt:
+  #     - "no-new-privileges:true"
+
+networks:
+  t2_proxy:
+    external: true
+    name: "t2_proxy"
+  t3_proxy:
+    external: true
+    name: "t3_proxy"
+  media:
+    name: "media"
+  ingress:
+    name: "ingress"
+  authentication:
+    name: "authentication"
+  communications:
+    name: "communications"
+  domotica:
+    name: "domotica"
+  monitoring:
+    name: "monitoring"
+  network:
+    name: "network"
+  utilities:
+    name: "utilities"
+  productivity:
+    name: "productivity"
+  pass_mgmt:
+    name: "pass_mgmt"
+  ddclient:
+    name: "ddclient"
 
