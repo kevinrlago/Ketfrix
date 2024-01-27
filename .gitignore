@@ -1,6 +1,10 @@
 proposals.temp
 **/.env
 **/.env.*
+**/*.yaml
+!media/docker-compose-media.yaml
+!kasm/docker-compose-kasm.yaml
+!utilities/docker-compose-utilities.yaml
 ./authentication
 ./communications
 ./domotica
