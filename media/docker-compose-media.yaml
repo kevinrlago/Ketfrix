@@ -18,7 +18,7 @@ services:
     expose:
       - 8989
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.$TV.rule=Host(`$TV.$DOMAIN`) || Host(`$TV.$LOCAL.$DOMAIN`) || Host(`$TV.internal.$DOMAIN`)"
       - "traefik.http.routers.$TV.entrypoints=https"
@@ -31,7 +31,7 @@ services:
       - "traefik.http.services.${TV}_svc.loadbalancer.server.port=8989"
     restart: unless-stopped
     networks:
-      - t2_proxy
+      - media
 
   radarr:
     image: ghcr.io/hotio/$FILMS:latest
@@ -49,7 +49,7 @@ services:
     expose:
       - 7878
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.$FILMS.rule=Host(`$FILMS.$DOMAIN`) || Host(`$FILMS.$LOCAL.$DOMAIN`) || Host(`$FILMS.internal.$DOMAIN`)"
       - "traefik.http.routers.$FILMS.entrypoints=https"
@@ -62,7 +62,7 @@ services:
       - "traefik.http.services.${FILMS}_svc.loadbalancer.server.port=7878"
     restart: unless-stopped
     networks:
-      - t2_proxy
+      - media
 
   lidarr:
     image: ghcr.io/hotio/$MUSIC:latest
@@ -80,7 +80,7 @@ services:
     expose:
       - 8686
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.$MUSIC.rule=Host(`$MUSIC.$DOMAIN`) || Host(`$MUSIC.$LOCAL.$DOMAIN`) || Host(`$MUSIC.internal.$DOMAIN`)"
       - "traefik.http.routers.$MUSIC.entrypoints=https"
@@ -93,7 +93,7 @@ services:
       - "traefik.http.services.${MUSIC}_svc.loadbalancer.server.port=8686"
     restart: unless-stopped
     networks:
-      - t2_proxy
+      - media
 
   readarr:
     container_name: $BOOKS
@@ -110,7 +110,7 @@ services:
       - /DATA/Downloads/Libros:/downloads
       - /Libros/Biblioteca:/books
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.$BOOKS.rule=Host(`$BOOKS.$DOMAIN`) || Host(`$BOOKS.$LOCAL.$DOMAIN`) || Host(`$BOOKS.internal.$DOMAIN`)"
       - "traefik.http.routers.$BOOKS.entrypoints=https"
@@ -123,7 +123,7 @@ services:
       - "traefik.http.services.${BOOKS}_svc.loadbalancer.server.port=8787"
     restart: unless-stopped
     networks:
-      - t2_proxy
+      - media
 
   unpackerr:
     image: ghcr.io/hotio/$PACK
@@ -159,7 +159,7 @@ services:
     volumes:
       - /config/$TRACKER:/config
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.$TRACKER.rule=Host(`$TRACKER.$DOMAIN`) || Host(`$TRACKER.$LOCAL.$DOMAIN` || `$TRACKER.internal.$DOMAIN`)"
       - "traefik.http.routers.$TRACKER.entrypoints=https"
@@ -171,7 +171,7 @@ services:
       - "traefik.http.routers.$TRACKER.tls.certresolver=myresolver"
       - "traefik.http.services.${TRACKER}_svc.loadbalancer.server.port=9696"
     networks:
-      - t2_proxy
+      - media
 
   qbitmanage:
     container_name: qbitmanage
@@ -204,7 +204,7 @@ services:
       - /config/$DOWNLOAD/.config:/config
       - /DATA/Downloads:/downloads
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.$DOWNLOAD.rule=Host( `$DOWNLOAD.$LOCAL.$DOMAIN` )"
       - "traefik.http.routers.$DOWNLOAD.entrypoints=https"
@@ -216,7 +216,7 @@ services:
       - "traefik.http.routers.$DOWNLOAD.tls.certresolver=myresolver"
       - "traefik.http.services.${DOWNLOAD}_svc.loadbalancer.server.port=8080"
     networks:
-      - t2_proxy
+      - media
 
   # bazarr:
   #   container_name: $SUBS
@@ -230,7 +230,7 @@ services:
   #     - /config/$SUBS:/config
   #     - /DATA/Plex:/data
   #   labels:
-  #     - "traefik.docker.network=t2_proxy"
+  #     - "traefik.docker.network=media"
   #     - "traefik.enable=true"
   #     - "traefik.http.routers.$SUBS.rule=Host(`$SUBS.$DOMAIN`) || Host(`$SUBS.$LOCAL.$DOMAIN` )"
   #     - "traefik.http.routers.$SUBS.entrypoints=https"
@@ -242,7 +242,7 @@ services:
   #     - "traefik.http.routers.$SUBS.tls.certresolver=myresolver"
   #     - "traefik.http.services.${SUBS}_svc.loadbalancer.server.port=6767"
   #   networks:
-  #     - t2_proxy
+  #     - media
 
   jellyfin:
     container_name: $MEDIAJ
@@ -261,7 +261,7 @@ services:
       - /config/$MEDIAJ:/config
       - /DATA/Plex:/data
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.$MEDIAJ.rule=Host(`$MEDIAJ.$DOMAIN`) || Host(`$TV.$LOCAL.$DOMAIN` )"
       - "traefik.http.routers.$MEDIAJ.entrypoints=https"
@@ -273,7 +273,7 @@ services:
       - "traefik.http.routers.$MEDIAJ.tls.certresolver=myresolver"
       - "traefik.http.services.${MEDIAJ}_svc.loadbalancer.server.port=8096"
     networks:
-      - t2_proxy
+      - media
 
   overseerr:
     container_name: $REQUESTS
@@ -290,7 +290,7 @@ services:
     volumes:
       - /config/$REQUESTS:/config
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.$REQUESTS.rule=Host(`$REQUESTS.$DOMAIN`)"
       - "traefik.http.routers.$REQUESTS.entrypoints=https"
@@ -302,7 +302,7 @@ services:
       - "traefik.http.routers.${REQUESTS}.tls.certresolver=myresolver"
       - "traefik.http.services.${REQUESTS}_svc.loadbalancer.server.port=5055"
     networks:
-      - t2_proxy
+      - media
 
   flood:
     container_name: $DOWNMNGMT
@@ -321,7 +321,7 @@ services:
     expose:
       - 3001
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.$DOWNMNGMT.rule=Host(`$DOWNMNGMT.$DOMAIN`) || Host(`$DOWNMNGMT.$LOCAL.$DOMAIN` )"
       - "traefik.http.routers.$DOWNMNGMT.entrypoints=https"
@@ -333,7 +333,7 @@ services:
       - "traefik.http.routers.$DOWNMNGMT.tls.certresolver=myresolver"
       - "traefik.http.services.${DOWNMNGMT}_svc.loadbalancer.server.port=3001"
     networks:
-      - t2_proxy
+      - media
 
   tautulli:
     container_name: $TAU
@@ -349,7 +349,7 @@ services:
     volumes:
       - /config/$TAU:/config
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.$TAU.rule=Host(`$TAU.$DOMAIN`) || Host(`$TAU.$LOCAL.$DOMAIN`) || Host(`$TAU.internal.$DOMAIN`)"
       - "traefik.http.routers.$TAU.entrypoints=https"
@@ -361,7 +361,7 @@ services:
       - "traefik.http.routers.$TAU.tls.certresolver=myresolver"
       - "traefik.http.services.${TAU}_svc.loadbalancer.server.port=8181"
     networks:
-      - t2_proxy
+      - media
 
   calibre-web:
     image: lscr.io/linuxserver/$WEB:latest
@@ -377,7 +377,7 @@ services:
       - 8083
     restart: unless-stopped
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.$WEB.rule=Host(`$WEB.$DOMAIN`) || Host(`$WEB.$LOCAL.$DOMAIN`)"
       - "traefik.http.routers.$WEB.entrypoints=https"
@@ -389,7 +389,7 @@ services:
       - "traefik.http.routers.$WEB.tls.certresolver=myresolver"
       - "traefik.http.services.${WEB}_svc.loadbalancer.server.port=8083"
     networks:
-      - t2_proxy
+      - media
 
   calibre:
     image: lscr.io/linuxserver/$LIB:latest
@@ -409,7 +409,7 @@ services:
       - 8081
     restart: unless-stopped
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.$LIB.rule=Host(`$LIB.$LOCAL.$DOMAIN`)"
       - "traefik.http.routers.$LIB.entrypoints=https"
@@ -421,7 +421,7 @@ services:
       - "traefik.http.routers.$LIB.tls.certresolver=myresolver"
       - "traefik.http.services.${LIB}_svc.loadbalancer.server.port=8080"
     networks:
-      - t2_proxy
+      - media
 
   hedgedoc:
     image: quay.io/hedgedoc/hedgedoc:latest
@@ -438,7 +438,7 @@ services:
     depends_on:
       - database    
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.$DOC.rule=Host(`$DOC.$DOMAIN`) || Host(`$DOC.$LOCAL.$DOMAIN`)"
       - "traefik.http.routers.$DOC.entrypoints=https"
@@ -450,7 +450,7 @@ services:
       - "traefik.http.routers.$DOC.tls.certresolver=myresolver"
       - "traefik.http.services.${DOC}_svc.loadbalancer.server.port=3000"
     networks:
-      - t2_proxy
+      - media
 
   database:
     image: postgres:13.4-alpine
@@ -461,7 +461,7 @@ services:
       - /config/$DOC/postgresql:/var/lib/postgresql/data
     restart: always
     networks:
-      - t2_proxy
+      - media
 
   plex:
     image: lscr.io/linuxserver/$MEDIA:latest
@@ -492,7 +492,7 @@ services:
       - /config/plexms:/config
     restart: unless-stopped
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.$MEDIA.rule=Host(`$MEDIA.$DOMAIN`) || Host(`$MEDIA.$LOCAL.$DOMAIN`)"
       - "traefik.http.routers.$MEDIA.entrypoints=https"
@@ -504,7 +504,7 @@ services:
       - "traefik.http.routers.$MEDIA.tls.certresolver=myresolver"
       - "traefik.http.services.${MEDIA}_svc.loadbalancer.server.port=32400"
     networks:
-      - t2_proxy
+      - media
 
   XTEVE:
     image: dnsforge/xteve:latest
@@ -523,7 +523,7 @@ services:
       - 34400
     restart: unless-stopped
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.$XTEVE.rule=Host(`$XTEVE.$DOMAIN`) || Host(`$XTEVE.$LOCAL.$DOMAIN`)"
       - "traefik.http.routers.$XTEVE.entrypoints=https"
@@ -535,7 +535,7 @@ services:
       - "traefik.http.routers.$XTEVE.tls.certresolver=myresolver"
       - "traefik.http.services.${XTEVE}_svc.loadbalancer.server.port=34400"
     networks:
-      - t2_proxy  
+      - media  
 
   guide2go:
     container_name: guide2go
@@ -577,7 +577,7 @@ services:
       - /config/autoscan:/config
     restart: always
     labels:
-      - "traefik.docker.network=t2_proxy"
+      - "traefik.docker.network=media"
       - "traefik.enable=true"
       - "traefik.http.routers.autoscan.rule=Host(`autoscan.$DOMAIN`) || Host(`autoscan.$LOCAL.$DOMAIN`)"
       - "traefik.http.routers.autoscan.entrypoints=https"
@@ -590,7 +590,7 @@ services:
       - "traefik.http.services.autoscan_svc.loadbalancer.server.port=3030" 
 
 networks:
-  t2_proxy:
-      name: t2_proxy
-      external: true
+  media:
+      name: "media"
+
 ...
