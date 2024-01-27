@@ -249,6 +249,8 @@ services:
     image: ghcr.io/hotio/$MEDIAJ
     #user: ${PUID}:${PGID}
     runtime: nvidia
+    devices: 
+      - "/dev/dri:/dev/dri"    
     restart: always
     expose:
       - 8096
@@ -466,7 +468,6 @@ services:
     container_name: $MEDIA
     #user: ${PUID}:${PGID}
     expose:
-      - 32400
       - 8324
       - 1900
       - 32469
@@ -477,11 +478,14 @@ services:
       - .env.$MEDIA
       - .env.nvidia
     ports:
+      - "32400:32400"
       - "32410:32410/udp"
       - "32412:32412/udp"
       - "32413:32413/udp"
       - "32414:32414/udp"
     runtime: nvidia
+    devices: 
+      - "/dev/dri:/dev/dri"
     volumes:
       - /config/$MEDIA:/transcode
       - /DATA/Plex:/data/media
