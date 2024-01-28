@@ -1,0 +1,374 @@
+version: "3.6"
+
+services:
+  prometheus:
+    container_name: "prometheus"
+    image: "prom/prometheus:latest" 
+    restart: "unless-stopped"
+    working_dir: "/prometheus"
+    env_file:
+      - .env.common
+      - .env.prometheus  
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--storage.tsdb.retention.time=200h"
+      - "--web.enable-lifecycle"
+    entrypoint:
+      - "/bin/prometheus"
+    expose:
+      - "9090/tcp"
+    labels:
+      traefik.docker.network: "monitoring"
+      traefik.enable: "true"
+      traefik.http.routers.prometheus.entrypoints: "https"
+      traefik.http.routers.prometheus.middlewares: "chain-authelia@file"
+      traefik.http.routers.prometheus.rule: "Host(`prometheus.prat.ketfrix.es`)"
+      traefik.http.routers.prometheus.service: "prometheus_svc"
+      traefik.http.routers.prometheus.tls: "true"
+      traefik.http.routers.prometheus.tls.certresolver: "myresolver"
+      traefik.http.services.prometheus_svc.loadbalancer.server.port: "9090"
+    volumes:
+      - "/config/monitoring/prometheus:/etc/prometheus"
+      - "dockprom_prometheus_data:/prometheus"
+    networks:
+      - "grafana"
+      - "monitoring"
+    logging:
+      driver: "json-file"
+      options: {}
+
+  grafana:
+    container_name: "grafana"
+    image: "grafana/grafana:latest"
+    restart: "unless-stopped"
+    entrypoint:
+      - "/run.sh"
+    user: "472"
+    env_file:
+      - .env.common
+      - .env.grafana
+    expose:
+      - "3000/tcp"
+    volumes:
+      - "/config/monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards"
+      - "/config/monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources"
+      - "dockprom_grafana_data:/var/lib/grafana"
+    working_dir: "/usr/share/grafana"
+    labels:
+      traefik.docker.network: "monitoring"
+      traefik.enable: "true"
+      traefik.http.routers.grafana.entrypoints: "https"
+      traefik.http.routers.grafana.middlewares: "chain-authelia@file"
+      traefik.http.routers.grafana.rule: "Host(`grafana.ketfrix.es`) || Host(`grafana.prat.ketfrix.es`)"
+      traefik.http.routers.grafana.service: "grafana_svc"
+      traefik.http.routers.grafana.tls: "true"
+      traefik.http.routers.grafana.tls.certresolver: "myresolver"
+      traefik.http.services.grafana_svc.loadbalancer.server.port: "3000"
+    networks:
+      - "grafana"
+      - "monitoring"
+    logging:
+      driver: "json-file"
+      options: {}
+
+  loki:
+    image: grafana/loki:2.9.4
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - /config/loki:/etc/loki
+    networks:
+      - grafana
+
+  promtail:
+    image: grafana/promtail:2.9.4
+    volumes:
+      - /var/log:/var/log
+      - /config/promtail:/etc/promtail
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - grafana
+
+  cadvisor:
+    container_name: "cadvisor"
+    image: "gcr.io/cadvisor/cadvisor:latest" 
+    privileged: true
+    restart: "always"
+    security_opt:
+      - "label=disable"
+    devices:
+      - "/dev/kmsg:/dev/kmsg"
+    entrypoint:
+      - "/usr/bin/cadvisor"
+      - "-logtostderr"
+    env_file:
+      - .env.common
+      - .env.cadvisor
+    expose:
+      - "8080/tcp"          
+    cap_drop:
+      - "AUDIT_CONTROL"
+      - "BLOCK_SUSPEND"
+      - "DAC_READ_SEARCH"
+      - "IPC_LOCK"
+      - "IPC_OWNER"
+      - "LEASE"
+      - "LINUX_IMMUTABLE"
+      - "MAC_ADMIN"
+      - "MAC_OVERRIDE"
+      - "NET_ADMIN"
+      - "NET_BROADCAST"
+      - "SYSLOG"
+      - "SYS_ADMIN"
+      - "SYS_BOOT"
+      - "SYS_MODULE"
+      - "SYS_NICE"
+      - "SYS_PACCT"
+      - "SYS_PTRACE"
+      - "SYS_RAWIO"
+      - "SYS_RESOURCE"
+      - "SYS_TIME"
+      - "SYS_TTY_CONFIG"
+      - "WAKE_ALARM"
+    volumes:
+      - "/:/rootfs:ro"
+      - "/cgroup:/cgroup:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker:/var/lib/docker:ro"
+      - "/var/run:/var/run:ro"
+    networks:
+      - "grafana"
+    logging:
+      driver: "json-file"
+      options: {}
+
+  alertmanager:
+    container_name: "alertmanager"
+    image: "prom/alertmanager:latest"
+    restart: "unless-stopped"
+    user: "nobody"           
+    command:
+      - "--config.file=/etc/alertmanager/config.yml"
+      - "--storage.path=/alertmanager"
+    entrypoint:
+      - "/bin/alertmanager"
+    working_dir: "/alertmanager"
+    env_file:
+      - .env.common
+      - .env.alertmanager          
+    expose:
+      - "9093/tcp"
+    networks:
+      - "grafana"    
+    volumes:
+      - "/config/monitoring/alertmanager:/etc/alertmanager"
+      - "4047cbf5c03b58862754c04198ec4a008d6e7d35dfc67e34a9da9f872f297090:/alertmanager"
+    logging:
+      driver: "json-file"
+      options: {}
+
+  node-exporter:
+    container_name: "node-exporter"
+    image: "prom/node-exporter:latest"
+    restart: "always"
+    user: "nobody"
+    env_file:
+      - .env.common
+      - .env.node-exporter
+    entrypoint:
+      - "/bin/node_exporter"            
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+      - "--collector.mountstats"
+      - "--collector.systemd"
+      - "--collector.diskstats.ignored-devices=^(ram|loop|fd|(h|v|xv)d[a-z]|nvme\\\\d+n\\\\d+p)\\\\d+$"
+      - "--collector.filesystem.fs-types-exclude"
+      - "^(binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
+      - "--collector.systemd.unit-exclude"
+      - ".+\\.(device|scope|slice)"
+      - "--collector.filesystem.mount-points-exclude"
+      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs|rootfs/Cinder|rootfs/boot|rootfs/boot/efi|rootfs/musica|rootfs/Libros|rootfs/run|rootfs/run/user/1000)($|/)"
+    networks:
+      - "grafana"
+    ports:
+      - "9100:9100/tcp"
+    volumes:
+      - "/:/rootfs:ro"
+      - "/DATA:/host/DATA:ro"
+      - "/dev/sda:/host/dev/sda:ro"
+      - "/proc:/host/proc:ro"
+      - "/sys:/host/sys:ro"
+      - "/var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro"
+    logging:
+      driver: "json-file"
+      options: {}
+
+  uptimekuma:
+    container_name: "uptimekuma"
+    image: "louislam/uptime-kuma:latest"
+    restart: "unless-stopped"
+    working_dir: "/app"        
+    command:
+      - "node"
+      - "server/server.js"
+    env_file:
+      - .env.common
+      - .env.uptimekuma
+    expose:
+      - "3001/tcp"
+    entrypoint:
+      - "/usr/bin/dumb-init"
+      - "--"
+      - "extra/entrypoint.sh"
+    labels:
+      traefik.docker.network: "monitoring"
+      traefik.enable: "true"
+      traefik.http.routers.uptimekuma.entrypoints: "https"
+      traefik.http.routers.uptimekuma.middlewares: "chain-no-auth@file"
+      traefik.http.routers.uptimekuma.rule: "Host(`uptimekuma.ketfrix.es`) || Host(`uptimekuma.prat.ketfrix.es`)"
+      traefik.http.routers.uptimekuma.service: "uptimekuma_svc"
+      traefik.http.routers.uptimekuma.tls: "true"
+      traefik.http.routers.uptimekuma.tls.certresolver: "myresolver"
+      traefik.http.services.uptimekuma_svc.loadbalancer.server.port: "3001"
+    networks:
+      - "monitoring"
+    logging:
+      driver: "json-file"
+      options: {}
+    volumes:
+      - "/config/uptime_kuma:/app/data"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  web-scrutiny:
+    command:
+      - "/opt/scrutiny/bin/scrutiny"
+      - "start"
+    container_name: "web-scrutiny"
+    env_file:
+      - .env.common
+      - .env.scrutiny-web
+    hostname: "7e8197acbeb9"
+    image: "ghcr.io/analogj/scrutiny:master-web"
+    ipc: "private"
+    labels:
+      traefik.docker.network: "monitoring"
+      traefik.enable: "true"
+      traefik.http.routers.scrutiny.entrypoints: "https"
+      traefik.http.routers.scrutiny.middlewares: "chain-no-auth@file"
+      traefik.http.routers.scrutiny.rule: "Host(`uptimekuma.prat.ketfrix.es`)"
+      traefik.http.routers.scrutiny.service: "scrutiny_svc"
+      traefik.http.routers.scrutiny.tls: "true"
+      traefik.http.routers.scrutiny.tls.certresolver: "myresolver"
+      traefik.http.services.scrutiny_svc.loadbalancer.server.port: "8080"
+    logging:
+      driver: "json-file"
+      options: {}
+    networks:
+      - "scrutiny"
+      - "monitoring"
+    ports:
+      - "8084:8080/tcp"
+    restart: "always"
+    user: "root"
+    volumes:
+      - "/config/scrutiny:/opt/scrutiny/config"
+    working_dir: "/opt/scrutiny"
+
+  collector-scrutiny:
+    container_name: "collector-scrutiny"
+    image: "ghcr.io/analogj/scrutiny:master-collector"
+    privileged: true
+    restart: "always"
+    working_dir: "/opt/scrutiny"
+    cap_drop:
+      - "AUDIT_CONTROL"
+      - "BLOCK_SUSPEND"
+      - "DAC_READ_SEARCH"
+      - "IPC_LOCK"
+      - "IPC_OWNER"
+      - "LEASE"
+      - "LINUX_IMMUTABLE"
+      - "MAC_ADMIN"
+      - "MAC_OVERRIDE"
+      - "NET_ADMIN"
+      - "NET_BROADCAST"
+      - "SYSLOG"
+      - "SYS_ADMIN"
+      - "SYS_BOOT"
+      - "SYS_MODULE"
+      - "SYS_NICE"
+      - "SYS_PACCT"
+      - "SYS_PTRACE"
+      - "SYS_RESOURCE"
+      - "SYS_TIME"
+      - "SYS_TTY_CONFIG"
+      - "WAKE_ALARM"
+    command:
+      - "/entrypoint-collector.sh"
+    devices:
+      - "/dev/sdb:/dev/sdb"
+      - "/dev/sdc:/dev/sdc"
+      - "/dev/sdd:/dev/sdd"
+      - "/dev/sde:/dev/sde"
+      - "/dev/sdf:/dev/sdf"
+      - "/dev/sdg:/dev/sdg"
+    env_file:
+      - .env.common
+      - .env.scrutiny-collector
+    networks:
+      - "scrutiny"
+    security_opt:
+      - "label=disable"
+    volumes:
+      - "/run/udev:/run/udev:ro"
+    logging:
+      driver: "json-file"
+      options: {}
+
+  scrutiny_influxdb:
+    command:
+      - "influxd"
+    container_name: "scrutiny_influx"
+    entrypoint:
+      - "/entrypoint.sh"
+    env_file:
+      - .env.common
+      - .env.scrutiny-influx
+    image: "influxdb:2.2"
+    logging:
+      driver: "json-file"
+      options: {}
+    networks:
+      - "scrutiny"
+    ports:
+      - "8086:8086/tcp"
+    restart: "always"
+    volumes:
+      - "/config/scrutiny/influxdb:/var/lib/influxdb2"
+      - "a54f05905ed4654aabaa30d384270f10d1d08c98b2cd27b2eaf2e6102681f819:/etc/influxdb2"
+
+
+volumes:
+  dockprom_prometheus_data:
+    external: true
+  dockprom_grafana_data:
+    external: true
+  4047cbf5c03b58862754c04198ec4a008d6e7d35dfc67e34a9da9f872f297090:
+    external: true
+  a54f05905ed4654aabaa30d384270f10d1d08c98b2cd27b2eaf2e6102681f819:
+    external: true
+
+networks:
+  grafana:
+    name: "grafana"
+  monitoring:
+    name: "monitoring"
+  scrutiny:
+    name: "scrutiny"
+  

@@ -7,5 +7,6 @@ proposals.temp
 !utilities/docker-compose-utilities.yaml
 !ingress/docker-compose-ingress.yaml
 !authentication/docker-compose-authentication.yaml
+!monitoring/docker-compose-monitoring.yaml
 docker-compose-portainer.yaml
 docker-compose-plex.yaml
