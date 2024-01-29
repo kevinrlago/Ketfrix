@@ -27,7 +27,7 @@ services:
       traefik.docker.network: "authentication"
       traefik.enable: "true"
       traefik.http.routers.authelia.entrypoints: "https"
-      traefik.http.routers.authelia.rule: "Host(`auth.ketfrix.es`)"
+      traefik.http.routers.authelia.rule: "Host(`auth.$DOMAIN`)"
       traefik.http.routers.authelia.tls: "true"
     networks:
       - "authentication"
@@ -45,15 +45,15 @@ services:
     entrypoint:
       - "/container/tool/run"
     restart: "always"
-    hostname: "ldap.prat.ketfrix.es"    
+    hostname: "ldap.$LOCAL.$DOMAIN"    
     env_file:
       - .env.common
       - .env.openldap
     labels:
-      traefik.docker.network: "t2_proxy"
+      traefik.docker.network: "authentication"
       traefik.enable: "true"
       traefik.tcp.routers.openldap.entrypoints: "ldap"
-      traefik.tcp.routers.openldap.rule: "HostSNI(`ldap.prat.ketfrix.es`)"
+      traefik.tcp.routers.openldap.rule: "HostSNI(`ldap.$LOCAL.$DOMAIN`)"
       traefik.tcp.routers.openldap.service: "openldap_svc"
       traefik.tcp.routers.openldap.tls: "true"
       traefik.tcp.routers.openldap.tls.certresolver: "myresolver"
@@ -79,15 +79,15 @@ services:
       - "80/tcp"
     entrypoint:
       - "/container/tool/run"
-    hostname: "phpldapadmin.prat.ketfrix.es"
+    hostname: "phpldapadmin.$LOCAL.$DOMAIN"
     env_file:
       - .env.common
       - .env.phpldapadmin
     labels:
-      traefik.docker.network: "t2_proxy"
+      traefik.docker.network: "authentication"
       traefik.enable: "true"
       traefik.http.routers.phpldapadmin.entrypoints: "https"
-      traefik.http.routers.phpldapadmin.rule: "Host(`phpldapadmin.prat.ketfrix.es`)"
+      traefik.http.routers.phpldapadmin.rule: "Host(`phpldapadmin.$LOCAL.$DOMAIN`)"
       traefik.http.routers.phpldapadmin.service: "phpldapadmin_svc"
       traefik.http.routers.phpldapadmin.tls: "true"
       traefik.http.routers.phpldapadmin.tls.certresolver: "myresolver"
@@ -118,10 +118,10 @@ services:
       - .env.common
       - .env.redis
     labels:
-      traefik.docker.network: "t2_proxy"
+      traefik.docker.network: "authentication"
       traefik.enable: "true"
       traefik.tcp.routers.redis.entrypoints: "redis"
-      traefik.tcp.routers.redis.rule: "HostSNI(`redis.ketfrix.es`) || HostSNI(`redis.prat.ketfrix.es`)"
+      traefik.tcp.routers.redis.rule: "HostSNI(`redis.$DOMAIN`) || HostSNI(`redis.$LOCAL.$DOMAIN`)"
       traefik.tcp.routers.redis.service: "redis_svc"
       traefik.tcp.routers.redis.tls: "true"
       traefik.tcp.routers.redis.tls.certresolver: "myresolver"
