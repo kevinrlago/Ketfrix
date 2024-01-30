@@ -34,8 +34,8 @@ services:
       - .env.common
       - .env.$NBXYZ
     volumes: 
-      - /config/netbootxyz/config:/config
-      - /config/netbootxyz/assets:/assets
+      - /config/utilities/netbootxyz/config:/config
+      - /config/utilities/netbootxyz/assets:/assets
     expose:
       - 3000
       - 69
@@ -63,7 +63,7 @@ services:
       - .env.common
       - .env.$HP
     volumes:
-      - /config/homepage:/app/config 
+      - /config/utilities/homepage:/app/config 
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
       - "traefik.docker.network=utilities"
@@ -100,7 +100,7 @@ services:
       - .env.common
       - .env.$SHLDB
     volumes:
-      - /config/shlink/mariadb:/var/lib/mysql
+      - /config/utilities/shlink/mariadb:/var/lib/mysql
     networks:
       - shlink
 
@@ -109,7 +109,7 @@ services:
     restart: always
     container_name: shlink
     volumes:
-      - /config/shlink/web/servers.json:/usr/share/nginx/html/servers.json
+      - /config/utilities/shlink/web/servers.json:/usr/share/nginx/html/servers.json
     depends_on:
       - shlink
     expose:

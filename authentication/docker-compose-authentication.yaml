@@ -16,13 +16,8 @@ services:
     env_file:
       - .env.common
       - .env.phpldapadmin
-    environment:
-      - "PUID=969"
-      - "PGID=1001"
-      - "TZ=Europe/Madrid"
-      - "PATH=/app:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     volumes:
-      - "/config/authelia:/config"
+      - "/config/authentication/authelia:/config"
     labels:
       traefik.docker.network: "authentication"
       traefik.enable: "true"
@@ -59,9 +54,9 @@ services:
       traefik.tcp.routers.openldap.tls.certresolver: "myresolver"
       traefik.tcp.services.openldap_svc.loadbalancer.server.port: "636"
     volumes:
-      - "/config/openldap/assets:/container/service/slapd/assets"
-      - "/config/openldap/etc/ldap/slapd.d:/etc/ldap/slapd.d"
-      - "/config/openldap/var/lib/ldap:/var/lib/ldap"      
+      - "/config/authentication/openldap/assets:/container/service/slapd/assets"
+      - "/config/authentication/openldap/etc/ldap/slapd.d:/etc/ldap/slapd.d"
+      - "/config/authentication/openldap/var/lib/ldap:/var/lib/ldap"      
     networks:
       - "openldap"
       - "authentication"
@@ -100,7 +95,7 @@ services:
       driver: "json-file"
       options: {}
     volumes:
-      - "/config/phpldapadmin/99-default:/container/environment/99-default"
+      - "/config/authentication/phpldapadmin/99-default:/container/environment/99-default"
       - "9340e8e462c1e082f764dfab610637a9d7ab0c1da130f9f646497da33e08472a:/var/www/phpldapadmin"
 
   redis:

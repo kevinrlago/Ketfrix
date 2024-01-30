@@ -11,7 +11,7 @@ services:
     env_file:
       - .env.common
     volumes:
-      - /config/$TV:/config
+      - /config/media/$TV:/config
       - /DATA/Plex/Series:/tv
       - /DATA/Downloads/$TV:/downloads
       - /DATA/Downloads/$TV-downloaded:/downloaded
@@ -40,7 +40,7 @@ services:
     env_file:
       - .env.common
     volumes:
-      - /config/$FILMS:/config
+      - /config/media/$FILMS:/config
       - /DATA/Plex/films:/movies
       - /DATA/Downloads/$FILMS:/downloads
       - /DATA/Downloads/$FILMS-downloaded:/downloaded
@@ -69,7 +69,7 @@ services:
     env_file:
       - .env.common
     volumes:
-      - /config/$MUSIC:/config
+      - /config/media/$MUSIC:/config
       - /DATA/Plex/Musica:/music
       - /DATA/Downloads/$MUSIC:/downloads
       - /DATA/Downloads/$MUSIC-downloaded:/downloaded
@@ -100,7 +100,7 @@ services:
     env_file:
       - .env.common
     volumes:
-      - /config/$BOOKS:/config
+      - /config/media/$BOOKS:/config
       - /DATA/Downloads/Libros:/downloads
       - /Libros/Biblioteca:/books
     labels:
@@ -149,7 +149,7 @@ services:
     env_file:
       - .env.common
     volumes:
-      - /config/$TRACKER:/config
+      - /config/media/$TRACKER:/config
     labels:
       - "traefik.docker.network=media"
       - "traefik.enable=true"
@@ -173,7 +173,7 @@ services:
     env_file:
       - .env.common
     volumes:
-      - /config/$QMNGMT:/config
+      - /config/media/$QMNGMT:/config
       - /DATA/Downloads:/data
 
   qbittorrent:
@@ -191,7 +191,7 @@ services:
     #   - TZ=Europe/Madrid
     #   - UMASK=002
     volumes:
-      - /config/$DOWNLOAD/.config:/config
+      - /config/media/$DOWNLOAD/.config:/config
       - /DATA/Downloads:/downloads
     labels:
       - "traefik.docker.network=media"
@@ -244,7 +244,7 @@ services:
       - .env.common
       - .env.nvidia
     volumes:
-      - /config/$MEDIAJ:/config
+      - /config/media/$MEDIAJ:/config
       - /DATA/Plex:/data
     labels:
       - "traefik.docker.network=media"
@@ -272,7 +272,7 @@ services:
     env_file:
       - .env.common
     volumes:
-      - /config/$REQUESTS:/config
+      - /config/media/$REQUESTS:/config
     labels:
       - "traefik.docker.network=media"
       - "traefik.enable=true"
@@ -298,7 +298,7 @@ services:
       - .env.common
       - .env.$DOWNMNGMT
     volumes:
-      - /config/$DOWNLOAD:/config
+      - /config/media/$DOWNLOAD:/config
       - /DATA/Downloads:/data
     expose:
       - 3001
@@ -327,7 +327,7 @@ services:
     env_file:
       - .env.common
     volumes:
-      - /config/$TAU:/config
+      - /config/media/$TAU:/config
     labels:
       - "traefik.docker.network=media"
       - "traefik.enable=true"
@@ -349,7 +349,7 @@ services:
       - .env.common
       - .env.$WEB
     volumes:
-      - /config/$WEB:/config
+      - /config/media/$WEB:/config
       - /Libros/Biblioteca:/books
     expose:
       - 8083
@@ -378,7 +378,7 @@ services:
       - .env.$LIB
     volumes:
       - /Libros/Biblioteca:/books
-      - /config/calibre:/config
+      - /config/media/calibre:/config
     expose:
       - 8080
       - 8181
@@ -405,7 +405,7 @@ services:
       - .env.common
       - .env.$DOC
     volumes:
-      - /config/$DOC:/config
+      - /config/media/$DOC:/config
     expose:
       - 3000
     restart: unless-stopped
@@ -430,7 +430,7 @@ services:
     env_file:
       - .env.$DOCDB
     volumes:
-      - /config/$DOC/postgresql:/var/lib/postgresql/data
+      - /config/media/$DOC/postgresql:/var/lib/postgresql/data
     restart: always
     networks:
       - media
@@ -459,9 +459,9 @@ services:
     devices: 
       - "/dev/dri:/dev/dri"
     volumes:
-      - /config/$MEDIA:/transcode
+      - /config/media/$MEDIA:/transcode
       - /DATA/Plex:/data/media
-      - /config/plexms:/config
+      - /config/media/plexms:/config
     restart: unless-stopped
     labels:
       - "traefik.docker.network=media"
@@ -487,8 +487,8 @@ services:
       - .env.common
       - .env.$XTEVE
     volumes:
-      - /config/xteve/conf:/home/xteve/conf
-      - /config/xteve/guide2go:/home/xteve/guide2go/conf
+      - /config/media/xteve/conf:/home/xteve/conf
+      - /config/media/xteve/guide2go:/home/xteve/guide2go/conf
     expose: 
       - 34400
     restart: unless-stopped
@@ -514,9 +514,9 @@ services:
     env_file:
       - .env.common
     volumes:
-      - /config/guide2go:/config
-      - /config/guide2go/livetv/:/data/livetv/
-      - /config/guide2go/images:/data/images/
+      - /config/media/guide2go:/config
+      - /config/media/guide2go/livetv/:/data/livetv/
+      - /config/media/guide2go/images:/data/images/
     restart: always
 
   acelink:
@@ -542,7 +542,7 @@ services:
       - .env.common
       - .env.autoscan
     volumes:
-      - /config/autoscan:/config
+      - /config/media/autoscan:/config
     restart: always
     labels:
       - "traefik.docker.network=media"

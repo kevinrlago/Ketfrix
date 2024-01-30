@@ -12,11 +12,11 @@ services:
       - "443:443/tcp"
       - "80:80/tcp"      
     volumes:
-      - "/config/traefik/letsencrypt:/letsencrypt"
-      - "/config/traefik/logs:/logs"
-      - "/config/traefik/plugins:/plugins-local"
-      - "/config/traefik/rules:/rules"
-      - "/config/traefik:/config"
+      - "/config/ingress/traefik/letsencrypt:/letsencrypt"
+      - "/config/ingress/traefik/logs:/logs"
+      - "/config/ingress/traefik/plugins:/plugins-local"
+      - "/config/ingress/traefik/rules:/rules"
+      - "/config/ingress/traefik:/config"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"   
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -50,6 +50,8 @@ services:
       - "productivity"
       - "domotica"
       - "pass_mgmt"
+      - "kasm"
+      - "linkwarden"
     logging:
       driver: "json-file"
       options: {}
@@ -65,7 +67,7 @@ services:
     entrypoint:
       - "/init"
     volumes:
-      - "/config/ddclient:/config"
+      - "/config/ingress/ddclient:/config"
     networks:
       - "ddclient"
     logging:
@@ -83,9 +85,9 @@ services:
       - .env.common
       - .env.$CROWDSEC
     volumes:
-      - "/config/crowdsec/config:/etc/crowdsec"
-      - "/config/crowdsec/data:/var/lib/crowdsec/data"
-      - "/config/traefik/logs/access:/logs/web:ro"
+      - "/config/ingress/crowdsec/config:/etc/crowdsec"
+      - "/config/ingress/crowdsec/data:/var/lib/crowdsec/data"
+      - "/config/ingress/traefik/logs/access:/logs/web:ro"
       - "/var/log:/var/log:ro"
     security_opt:
       - "no-new-privileges:true"
@@ -149,4 +151,6 @@ networks:
     name: "ddclient"
   kasm:
     name: "kasm"
+  linkwarden:
+    name: "linkwarden"
 
