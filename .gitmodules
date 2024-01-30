@@ -1,0 +1,3 @@
+[submodule "linkwarden"]
+	path = linkwarden
+	url = https://github.com/linkwarden/linkwarden.git
