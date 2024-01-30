@@ -3,7 +3,7 @@ proposals.temp
 **/.env.*
 **/*.yaml
 !media/docker-compose-media.yaml
-!kasm/docker-compose-kasm.yaml
+!kasm/**/docker-compose-kasm.yaml
 !utilities/docker-compose-utilities.yaml
 !ingress/docker-compose-ingress.yaml
 !authentication/docker-compose-authentication.yaml
