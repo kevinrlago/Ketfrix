@@ -171,9 +171,7 @@ services:
       - "traefik.http.routers.$VM.entrypoints=https"
       - "traefik.http.routers.$VM.tls=true"
       - "traefik.http.routers.$VM.service=${VM}_svc"
-      - "traefik.http.routers.${VM}_http.rule=Host(`$VM.$DOMAIN`)"
-      - "traefik.http.routers.${VM}_http.entrypoints=http"
-      - "traefik.http.routers.${VM}_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$VM.middlewares=chain-authelia@file"
       - "traefik.http.routers.$VM.tls.certresolver=myresolver"
       - "traefik.http.services.${VM}_svc.loadbalancer.server.port=443"
 volumes:

@@ -21,9 +21,7 @@ services:
   #    - "traefik.http.routers.$BAG.entrypoints=https"
   #    - "traefik.http.routers.$BAG.tls=true"
   #    - "traefik.http.routers.$BAG.service=${BAG}_svc"
-  #    - "traefik.http.routers.${BAG}_http.rule=Host(`$BAG.$DOMAIN`)"
-  #    - "traefik.http.routers.${BAG}_http.entrypoints=http"
-  #    - "traefik.http.routers.${BAG}_http.middlewares=chain-authelia@file"
+  #    - "traefik.http.routers.${BAG}.middlewares=chain-authelia@file"
   #    - "traefik.http.routers.$BAG.tls.certresolver=myresolver"
   #    - "traefik.http.services.${BAG}_svc.loadbalancer.server.port=443"  
     # networks:
@@ -49,9 +47,7 @@ services:
       - "traefik.http.routers.$NBXYZ.entrypoints=https"
       - "traefik.http.routers.$NBXYZ.tls=true"
       - "traefik.http.routers.$NBXYZ.service=${NBXYZ}_svc"
-      - "traefik.http.routers.${NBXYZ}_http.rule=Host(`$NBXYZ.$DOMAIN`)"
-      - "traefik.http.routers.${NBXYZ}_http.entrypoints=http"
-      - "traefik.http.routers.${NBXYZ}_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$NBXYZ.middlewares=chain-authelia@file"
       - "traefik.http.routers.$NBXYZ.tls.certresolver=myresolver"
       - "traefik.http.services.${NBXYZ}_svc.loadbalancer.server.port=3000" 
     networks:
@@ -76,9 +72,7 @@ services:
       - "traefik.http.routers.$HP.entrypoints=https"
       - "traefik.http.routers.$HP.tls=true"
       - "traefik.http.routers.$HP.service=${HP}_svc"
-      - "traefik.http.routers.${HP}_http.rule=Host(`www.$DOMAIN`) || Host(`$HP.$LOCAL.$DOMAIN`)"
-      - "traefik.http.routers.${HP}_http.entrypoints=http"
-      - "traefik.http.routers.${HP}_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$HP.middlewares=chain-authelia@file"
       - "traefik.http.routers.$HP.tls.certresolver=myresolver"
       - "traefik.http.services.${HP}_svc.loadbalancer.server.port=3000" 
     networks:
@@ -127,9 +121,7 @@ services:
       - "traefik.http.routers.$SHL.entrypoints=https"
       - "traefik.http.routers.$SHL.tls=true"
       - "traefik.http.routers.$SHL.service=${SHL}_svc"
-      - "traefik.http.routers.${SHL}_http.rule=Host(`$SHL.$DOMAIN`) || Host(`$SHL.$LOCAL.$DOMAIN`)"
-      - "traefik.http.routers.${SHL}_http.entrypoints=http"
-      - "traefik.http.routers.${SHL}_http.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$SHL.middlewares=chain-authelia@file"
       - "traefik.http.routers.$SHL.tls.certresolver=myresolver"
       - "traefik.http.services.${SHL}_svc.loadbalancer.server.port=80" 
     networks:
