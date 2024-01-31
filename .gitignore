@@ -8,5 +8,7 @@ proposals.temp
 !ingress/docker-compose-ingress.yaml
 !authentication/docker-compose-authentication.yaml
 !monitoring/docker-compose-monitoring.yaml
+!linkwarden/docker-compose-linkwarden.yaml
+!Hashicorp\ Vault/docker-compose-vault.yaml
 docker-compose-portainer.yaml
 docker-compose-plex.yaml

@@ -1,0 +1,31 @@
+version: '3.1'
+services:
+  vault:
+    image: vault
+    container_name: hashicorp/vault:latest
+    expose:
+      - 8200
+    volumes:
+      - /config/vault/config.hcl:/vault/config/config.hcl:ro
+      - /config/vault/vault_data:/vault/data
+    cap_add:
+      - IPC_LOCK
+    command: server
+    environment:
+      - TZ=Europe/Madrid
+    restart: always
+    labels:
+      traefik.docker.network: "vault"
+      traefik.enable: "true"
+      traefik.http.routers.vault.entrypoints: "https"
+      traefik.http.routers.vault.middlewares: "chain-authelia@file"
+      traefik.http.routers.vault.rule: "Host(`vault.$LOCAL.$DOMAIN`)"
+      traefik.http.routers.vault.service: "vault_svc"
+      traefik.http.routers.vault.tls: "true"
+      traefik.http.routers.vault.tls.certresolver: "myresolver"
+      traefik.http.services.vault_svc.loadbalancer.server.port: "8200"
+    networks:
+      - "vault"
+networks:
+  vault:
+    name: "vault"
