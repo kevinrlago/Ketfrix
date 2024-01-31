@@ -1,0 +1,45 @@
+version: "3.5"
+services:
+  postgres:
+    image: postgres:16-alpine
+    env_file: .env
+    restart: always
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    networks:
+      - "linkwarden-backend"
+  linkwarden:
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres
+    restart: always
+    # build: . # uncomment this line to build from source
+    image: ghcr.io/linkwarden/linkwarden:latest # comment this line to build from source
+    expose:
+      - 3000
+    volumes:
+      - ./data:/data/data
+    depends_on:
+      - postgres
+    labels:
+      traefik.docker.network: "linkwarden"
+      traefik.enable: "true"
+      traefik.http.routers.linkwarden.entrypoints: "https"
+      traefik.http.routers.linkwarden.middlewares: "chain-authelia@file"
+      traefik.http.routers.linkwarden.rule: "Host(`linkwarden.$DOMAIN`) || Host(`linkwarden.$LOCAL.$DOMAIN`)"
+      traefik.http.routers.linkwarden.service: "linkwarden_svc"
+      traefik.http.routers.linkwarden.tls: "true"
+      traefik.http.routers.linkwarden.tls.certresolver: "myresolver"
+      traefik.http.services.linkwarden_svc.loadbalancer.server.port: "3000"
+    networks:
+      - "linkwarden"
+      - "linkwarden-backend"
+    logging:
+      driver: "json-file"
+      options: {}
+
+networks:
+  linkwarden:
+    name: "linkwarden"
+  linkwarden-backend:
+    name: "linkwarden-backend"
