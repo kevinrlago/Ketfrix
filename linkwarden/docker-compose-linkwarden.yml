@@ -8,6 +8,10 @@ services:
       - ./pgdata:/var/lib/postgresql/data
     networks:
       - "linkwarden-backend"
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
+
   linkwarden:
     env_file: .env
     environment:
@@ -37,7 +41,10 @@ services:
     logging:
       driver: "json-file"
       options: {}
-
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
+      
 networks:
   linkwarden:
     name: "linkwarden"

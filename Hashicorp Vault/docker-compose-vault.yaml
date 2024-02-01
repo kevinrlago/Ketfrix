@@ -26,6 +26,9 @@ services:
       traefik.http.services.vault_svc.loadbalancer.server.port: "8200"
     networks:
       - "vault"
+    security_opt:
+      - no-new-privileges
+      
 networks:
   vault:
     name: "vault"

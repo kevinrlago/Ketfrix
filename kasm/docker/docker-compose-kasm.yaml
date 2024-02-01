@@ -27,6 +27,9 @@ services:
         max-file: "20"
     command: postgres -c ssl=on -c ssl_cert_file=/etc/ssl/certs/db_server.crt -c ssl_key_file=/etc/ssl/certs/db_server.key -c config_file=/var/lib/postgresql/conf/postgresql.conf -c hba_file=/var/lib/postgresql/conf/pg_hba.conf
     restart: "always"
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   kasm_redis:
     container_name: kasm_redis
@@ -43,6 +46,9 @@ services:
         max-size: "10m"
         max-file: "20"
     restart: "always"
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   kasm_api:
     container_name: kasm_api
@@ -62,6 +68,9 @@ services:
       options:
         max-size: "10m"
         max-file: "20"
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   kasm_manager:
     container_name: kasm_manager
@@ -80,6 +89,9 @@ services:
       options:
         max-size: "10m"
         max-file: "20"
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   kasm_agent:
     container_name: kasm_agent
@@ -100,6 +112,9 @@ services:
       options:
         max-size: "10m"
         max-file: "20"
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   kasm_share:
     container_name: kasm_share
@@ -119,6 +134,9 @@ services:
       options:
         max-size: "10m"
         max-file: "20"
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   kasm_guac:
     container_name: kasm_guac
@@ -136,6 +154,9 @@ services:
       options:
         max-size: "10m"
         max-file: "20"
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   proxy:
     container_name: kasm_proxy
@@ -174,6 +195,10 @@ services:
       - "traefik.http.routers.$VM.middlewares=chain-authelia@file"
       - "traefik.http.routers.$VM.tls.certresolver=myresolver"
       - "traefik.http.services.${VM}_svc.loadbalancer.server.port=443"
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
+      
 volumes:
   kasm_db_1.14.0:
     external: true

@@ -30,6 +30,15 @@ services:
     logging:
       driver: "json-file"
       options: {}
+    healthcheck:
+      test: curl --fail http://localhost:9091 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   openldap:
     container_name: "openldap"
@@ -64,6 +73,9 @@ services:
     logging:
       driver: "json-file"
       options: {}
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   phpldapadmin:
     container_name: "phpldapadmin"
@@ -94,6 +106,9 @@ services:
     logging:
       driver: "json-file"
       options: {}
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
     volumes:
       - "/config/authentication/phpldapadmin/99-default:/container/environment/99-default"
       - "9340e8e462c1e082f764dfab610637a9d7ab0c1da130f9f646497da33e08472a:/var/www/phpldapadmin"
@@ -124,6 +139,9 @@ services:
     networks:
       - "authentication"
       - "authelia"
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
     logging:
       driver: "json-file"
       options: {}

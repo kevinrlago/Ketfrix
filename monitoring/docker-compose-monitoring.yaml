@@ -39,6 +39,9 @@ services:
     logging:
       driver: "json-file"
       options: {}
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   grafana:
     container_name: "grafana"
@@ -73,6 +76,9 @@ services:
     logging:
       driver: "json-file"
       options: {}
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   loki:
     image: grafana/loki:2.9.4
@@ -83,6 +89,9 @@ services:
       - /config/loki:/etc/loki
     networks:
       - grafana
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   promtail:
     image: grafana/promtail:2.9.4
@@ -92,6 +101,9 @@ services:
     command: -config.file=/etc/promtail/config.yml
     networks:
       - grafana
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   cadvisor:
     container_name: "cadvisor"
@@ -99,7 +111,8 @@ services:
     privileged: true
     restart: "always"
     security_opt:
-      - "label=disable"
+      - no-new-privileges:true
+      - apparmor:docker-default
     devices:
       - "/dev/kmsg:/dev/kmsg"
     entrypoint:
@@ -170,6 +183,9 @@ services:
     logging:
       driver: "json-file"
       options: {}
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   node-exporter:
     container_name: "node-exporter"
@@ -208,6 +224,9 @@ services:
     logging:
       driver: "json-file"
       options: {}
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   uptimekuma:
     container_name: "uptimekuma"
@@ -241,6 +260,9 @@ services:
     logging:
       driver: "json-file"
       options: {}
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
     volumes:
       - "/config/uptime_kuma:/app/data"
       - "/var/run/docker.sock:/var/run/docker.sock"
@@ -276,6 +298,9 @@ services:
       - "8080/tcp"
     restart: "always"
     user: "root"
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
     volumes:
       - "/config/scrutiny:/opt/scrutiny/config"
     working_dir: "/opt/scrutiny"
@@ -324,7 +349,8 @@ services:
     networks:
       - "scrutiny"
     security_opt:
-      - "label=disable"
+      - apparmor:docker-default
+      - no-new-privileges:true
     volumes:
       - "/run/udev:/run/udev:ro"
     logging:
@@ -349,6 +375,9 @@ services:
     ports:
       - "8086:8086/tcp"
     restart: "always"
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
     volumes:
       - "/config/scrutiny/influxdb:/var/lib/influxdb2"
       - "a54f05905ed4654aabaa30d384270f10d1d08c98b2cd27b2eaf2e6102681f819:/etc/influxdb2"

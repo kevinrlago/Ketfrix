@@ -29,6 +29,7 @@ services:
   netbootxyz:
     image: lscr.io/linuxserver/netbootxyz:latest
     container_name: netbootxyz
+    user: utilities:utilities
     restart: always
     env_file:
       - .env.common
@@ -52,10 +53,14 @@ services:
       - "traefik.http.services.${NBXYZ}_svc.loadbalancer.server.port=3000" 
     networks:
       - utilities
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
+    user: utilities:utilities
     restart: always
     expose:
       - 3000
@@ -77,11 +82,15 @@ services:
       - "traefik.http.services.${HP}_svc.loadbalancer.server.port=3000" 
     networks:
       - utilities
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   shlink:
     image: shlinkio/shlink:stable
     restart: always
     container_name: shlink-backend
+    user: utilities:utilities
     env_file:
       - .env.common
       - .env.$SHLB
@@ -91,10 +100,14 @@ services:
       - 8080
     networks:
       - shlink
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   database:
     image: mariadb:latest
     restart: always
+    user: utilities:utilities
     container_name: shlink-database
     env_file:
       - .env.common
@@ -103,10 +116,14 @@ services:
       - /config/utilities/shlink/mariadb:/var/lib/mysql
     networks:
       - shlink
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   shlink-web-client:
     image: shlinkio/shlink-web-client
     restart: always
+    user: utilities:utilities
     container_name: shlink
     volumes:
       - /config/utilities/shlink/web/servers.json:/usr/share/nginx/html/servers.json
@@ -127,6 +144,10 @@ services:
     networks:
       - utilities
       - shlink
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
+
 networks:
   utilities:
     name: "utilities"

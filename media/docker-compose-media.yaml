@@ -30,6 +30,9 @@ services:
     restart: unless-stopped
     networks:
       - media
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   radarr:
     image: ghcr.io/hotio/$FILMS:latest
@@ -59,6 +62,9 @@ services:
     restart: unless-stopped
     networks:
       - media
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   lidarr:
     image: ghcr.io/hotio/$MUSIC:latest
@@ -88,6 +94,9 @@ services:
     restart: unless-stopped
     networks:
       - media
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   readarr:
     container_name: $BOOKS
@@ -116,6 +125,9 @@ services:
     restart: unless-stopped
     networks:
       - media
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   unpackerr:
     image: ghcr.io/hotio/$PACK
@@ -136,6 +148,7 @@ services:
       - .env.$PACK
     security_opt:
       - no-new-privileges:true
+      - apparmor:docker-default
 
   prowlarr:
     container_name: $TRACKER
@@ -162,6 +175,9 @@ services:
       - "traefik.http.services.${TRACKER}_svc.loadbalancer.server.port=9696"
     networks:
       - media
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   qbitmanage:
     container_name: qbitmanage
@@ -175,6 +191,9 @@ services:
     volumes:
       - /config/media/$QMNGMT:/config
       - /DATA/Downloads:/data
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   qbittorrent:
     container_name: qbittorrent
@@ -205,6 +224,9 @@ services:
       - "traefik.http.services.${DOWNLOAD}_svc.loadbalancer.server.port=8080"
     networks:
       - media
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   # bazarr:
   #   container_name: $SUBS
@@ -258,6 +280,9 @@ services:
       - "traefik.http.services.${MEDIAJ}_svc.loadbalancer.server.port=8096"
     networks:
       - media
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   overseerr:
     container_name: $REQUESTS
@@ -285,6 +310,9 @@ services:
       - "traefik.http.services.${REQUESTS}_svc.loadbalancer.server.port=5055"
     networks:
       - media
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   flood:
     container_name: $DOWNMNGMT
@@ -314,6 +342,9 @@ services:
       - "traefik.http.services.${DOWNMNGMT}_svc.loadbalancer.server.port=3001"
     networks:
       - media
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   tautulli:
     container_name: $TAU
@@ -340,6 +371,9 @@ services:
       - "traefik.http.services.${TAU}_svc.loadbalancer.server.port=8181"
     networks:
       - media
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   calibre-web:
     image: lscr.io/linuxserver/$WEB:latest
@@ -366,13 +400,17 @@ services:
       - "traefik.http.services.${WEB}_svc.loadbalancer.server.port=8083"
     networks:
       - media
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   calibre:
     image: lscr.io/linuxserver/$LIB:latest
     container_name: $LIB
    # user: ${PUID}:${PGID}
     security_opt:
-      - seccomp:unconfined #optional
+      - no-new-privileges:true
+      - apparmor:docker-default
     env_file:
       - .env.common
       - .env.$LIB
@@ -396,6 +434,7 @@ services:
       - "traefik.http.services.${LIB}_svc.loadbalancer.server.port=8080"
     networks:
       - media
+
 
   hedgedoc:
     image: quay.io/hedgedoc/hedgedoc:latest
@@ -423,6 +462,9 @@ services:
       - "traefik.http.services.${DOC}_svc.loadbalancer.server.port=3000"
     networks:
       - media
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   database:
     image: postgres:13.4-alpine
@@ -434,6 +476,9 @@ services:
     restart: always
     networks:
       - media
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   plex:
     image: lscr.io/linuxserver/$MEDIA:latest
@@ -475,6 +520,9 @@ services:
       - "traefik.http.services.${MEDIA}_svc.loadbalancer.server.port=32400"
     networks:
       - media
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   XTEVE:
     image: dnsforge/xteve:latest
@@ -503,7 +551,10 @@ services:
       - "traefik.http.routers.$XTEVE.tls.certresolver=myresolver"
       - "traefik.http.services.${XTEVE}_svc.loadbalancer.server.port=34400"
     networks:
-      - media  
+      - media
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   guide2go:
     container_name: guide2go
@@ -518,6 +569,9 @@ services:
       - /config/media/guide2go/livetv/:/data/livetv/
       - /config/media/guide2go/images:/data/images/
     restart: always
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   acelink:
     container_name: acelink
@@ -529,6 +583,9 @@ services:
       - .env.common
     network_mode: host
     restart: always
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   autoscan:
     container_name: autoscan
@@ -544,6 +601,9 @@ services:
     volumes:
       - /config/media/autoscan:/config
     restart: always
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
     labels:
       - "traefik.docker.network=media"
       - "traefik.enable=true"
