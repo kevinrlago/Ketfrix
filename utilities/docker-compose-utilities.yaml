@@ -29,7 +29,7 @@ services:
   netbootxyz:
     image: lscr.io/linuxserver/netbootxyz:latest
     container_name: netbootxyz
-    user: utilities:utilities
+#    user: utilities:utilities
     restart: always
     env_file:
       - .env.common
