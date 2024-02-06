@@ -148,10 +148,38 @@ services:
       - no-new-privileges:true
       - apparmor:docker-default
 
+  watchtower:
+    container_name: "watchtower"
+    image: "containrrr/watchtower:latest"
+    restart: "always"        
+    entrypoint:
+      - "/watchtower"
+    env_file:
+      - .env.watchtower
+      - .env.common
+    expose:
+      - "8080/tcp"
+    volumes:
+      - "/config/utilities/watchtower/config.json:/config.json"
+      - "/config/utilities/watchtower/certs:/etc/ssl/docker"  
+    networks:
+      - "watchtower"
+    logging:
+      driver: "json-file"
+      options: {}
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
+    command: --tlsverify
+
+
+
 networks:
   utilities:
     name: "utilities"
   shlink:
     name: "shlink"
+  watchtower:
+    name: "watchtower"
 
 
