@@ -4,7 +4,7 @@ services:
   prometheus:
     container_name: "prometheus"
     image: "prom/prometheus:latest" 
-    restart: "unless-stopped"
+    restart: "on-failure:5"
     working_dir: "/prometheus"
     env_file:
       - .env.common
@@ -21,15 +21,15 @@ services:
     expose:
       - "9090/tcp"
     labels:
-      traefik.docker.network: "monitoring"
-      traefik.enable: "true"
-      traefik.http.routers.prometheus.entrypoints: "https"
-      traefik.http.routers.prometheus.middlewares: "chain-authelia@file"
-      traefik.http.routers.prometheus.rule: "Host(`prometheus.$LOCAL.$DOMAIN`)"
-      traefik.http.routers.prometheus.service: "prometheus_svc"
-      traefik.http.routers.prometheus.tls: "true"
-      traefik.http.routers.prometheus.tls.certresolver: "myresolver"
-      traefik.http.services.prometheus_svc.loadbalancer.server.port: "9090"
+      - "traefik.docker.network=monitoring"
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.entrypoints=https"
+      - "traefik.http.routers.prometheus.middlewares=chain-authelia@file"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.prometheus.service=prometheus_svc"
+      - "traefik.http.routers.prometheus.tls=true"
+      - "traefik.http.routers.prometheus.tls.certresolver=myresolver"
+      - "traefik.http.services.prometheus_svc.loadbalancer.server.port=9090"
     volumes:
       - "/config/monitoring/prometheus:/etc/prometheus"
       - "dockprom_prometheus_data:/prometheus"
@@ -46,7 +46,7 @@ services:
   grafana:
     container_name: "grafana"
     image: "grafana/grafana:latest"
-    restart: "unless-stopped"
+    restart: "on-failure:5"
     entrypoint:
       - "/run.sh"
     user: "472"
@@ -61,15 +61,15 @@ services:
       - "dockprom_grafana_data:/var/lib/grafana"
     working_dir: "/usr/share/grafana"
     labels:
-      traefik.docker.network: "monitoring"
-      traefik.enable: "true"
-      traefik.http.routers.grafana.entrypoints: "https"
-      traefik.http.routers.grafana.middlewares: "chain-authelia@file"
-      traefik.http.routers.grafana.rule: "Host(`grafana.$DOMAIN`) || Host(`grafana.$LOCAL.$DOMAIN`)"
-      traefik.http.routers.grafana.service: "grafana_svc"
-      traefik.http.routers.grafana.tls: "true"
-      traefik.http.routers.grafana.tls.certresolver: "myresolver"
-      traefik.http.services.grafana_svc.loadbalancer.server.port: "3000"
+      - "traefik.docker.network=monitoring"
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.entrypoints=https"
+      - "traefik.http.routers.grafana.middlewares=chain-authelia@file"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.$DOMAIN`) || Host(`grafana.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.grafana.service=grafana_svc"
+      - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.routers.grafana.tls.certresolver=myresolver"
+      - "traefik.http.services.grafana_svc.loadbalancer.server.port=3000"
     networks:
       - "grafana"
       - "monitoring"
@@ -82,6 +82,8 @@ services:
 
   loki:
     image: grafana/loki:2.9.4
+    container_name: loki
+    restart: on-failure:5
     expose:
       - "3100"
     command: -config.file=/etc/loki/local-config.yaml
@@ -95,6 +97,8 @@ services:
 
   promtail:
     image: grafana/promtail:2.9.4
+    container_name: promtail
+    restart: on-failure:5
     volumes:
       - /var/log:/var/log
       - /config/promtail:/etc/promtail
@@ -109,7 +113,7 @@ services:
     container_name: "cadvisor"
     image: "gcr.io/cadvisor/cadvisor:latest" 
     privileged: true
-    restart: "always"
+    restart: "on-failure:5"
     security_opt:
       - no-new-privileges:true
       - apparmor:docker-default
@@ -162,7 +166,7 @@ services:
   alertmanager:
     container_name: "alertmanager"
     image: "prom/alertmanager:latest"
-    restart: "unless-stopped"
+    restart: "on-failure:5"
     user: "nobody"           
     command:
       - "--config.file=/etc/alertmanager/config.yml"
@@ -190,7 +194,7 @@ services:
   node-exporter:
     container_name: "node-exporter"
     image: "prom/node-exporter:latest"
-    restart: "always"
+    restart: "on-failure:5"
     user: "nobody"
     env_file:
       - .env.common
@@ -231,7 +235,7 @@ services:
   uptimekuma:
     container_name: "uptimekuma"
     image: "louislam/uptime-kuma:latest"
-    restart: "unless-stopped"
+    restart: "on-failure:5"
     working_dir: "/app"        
     command:
       - "node"
@@ -246,15 +250,15 @@ services:
       - "--"
       - "extra/entrypoint.sh"
     labels:
-      traefik.docker.network: "monitoring"
-      traefik.enable: "true"
-      traefik.http.routers.uptimekuma.entrypoints: "https"
-      traefik.http.routers.uptimekuma.middlewares: "chain-no-auth@file"
-      traefik.http.routers.uptimekuma.rule: "Host(`uptimekuma.$DOMAIN`) || Host(`uptimekuma.$LOCAL.$DOMAIN`)"
-      traefik.http.routers.uptimekuma.service: "uptimekuma_svc"
-      traefik.http.routers.uptimekuma.tls: "true"
-      traefik.http.routers.uptimekuma.tls.certresolver: "myresolver"
-      traefik.http.services.uptimekuma_svc.loadbalancer.server.port: "3001"
+      - "traefik.docker.network=monitoring"
+      - "traefik.enable=true"
+      - "traefik.http.routers.uptimekuma.entrypoints=https"
+      - "traefik.http.routers.uptimekuma.middlewares=chain-no-auth@file"
+      - "traefik.http.routers.uptimekuma.rule=Host(`uptimekuma.$DOMAIN`) || Host(`uptimekuma.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.uptimekuma.service=uptimekuma_svc"
+      - "traefik.http.routers.uptimekuma.tls=true"
+      - "traefik.http.routers.uptimekuma.tls.certresolver=myresolver"
+      - "traefik.http.services.uptimekuma_svc.loadbalancer.server.port=3001"
     networks:
       - "monitoring"
     logging:
@@ -275,19 +279,17 @@ services:
     env_file:
       - .env.common
       - .env.scrutiny-web
-    hostname: "7e8197acbeb9"
     image: "ghcr.io/analogj/scrutiny:master-web"
-    ipc: "private"
     labels:
-      traefik.docker.network: "monitoring"
-      traefik.enable: "true"
-      traefik.http.routers.scrutiny.entrypoints: "https"
-      traefik.http.routers.scrutiny.middlewares: "chain-no-auth@file"
-      traefik.http.routers.scrutiny.rule: "Host(`scrutiny.$LOCAL.$DOMAIN`)"
-      traefik.http.routers.scrutiny.service: "scrutiny_svc"
-      traefik.http.routers.scrutiny.tls: "true"
-      traefik.http.routers.scrutiny.tls.certresolver: "myresolver"
-      traefik.http.services.scrutiny_svc.loadbalancer.server.port: "8080"
+      - "traefik.docker.network=monitoring"
+      - "traefik.enable=true"
+      - "traefik.http.routers.scrutiny.entrypoints=https"
+      - "traefik.http.routers.scrutiny.middlewares=chain-no-auth@file"
+      - "traefik.http.routers.scrutiny.rule=Host(`scrutiny.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.scrutiny.service=scrutiny_svc"
+      - "traefik.http.routers.scrutiny.tls=true"
+      - "traefik.http.routers.scrutiny.tls.certresolver=myresolver"
+      - "traefik.http.services.scrutiny_svc.loadbalancer.server.port=8080"
     logging:
       driver: "json-file"
       options: {}
@@ -296,7 +298,7 @@ services:
       - "monitoring"
     expose:
       - "8080/tcp"
-    restart: "always"
+    restart: "on-failure:5"
     user: "root"
     security_opt:
       - no-new-privileges:true
@@ -309,7 +311,7 @@ services:
     container_name: "collector-scrutiny"
     image: "ghcr.io/analogj/scrutiny:master-collector"
     privileged: true
-    restart: "always"
+    restart: "on-failure:5"
     working_dir: "/opt/scrutiny"
     cap_drop:
       - "AUDIT_CONTROL"
@@ -374,7 +376,7 @@ services:
       - "scrutiny"
     ports:
       - "8086:8086/tcp"
-    restart: "always"
+    restart: "on-failure:5"
     security_opt:
       - no-new-privileges:true
       - apparmor:docker-default

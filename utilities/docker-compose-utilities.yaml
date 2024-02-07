@@ -30,7 +30,7 @@ services:
     image: lscr.io/linuxserver/netbootxyz:latest
     container_name: netbootxyz
 #    user: utilities:utilities
-    restart: always
+    restart: on-failure:5
     env_file:
       - .env.common
       - .env.$NBXYZ
@@ -60,8 +60,8 @@ services:
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
-    user: utilities:utilities
-    restart: always
+#    user: utilities:utilities
+    restart: on-failure:5
     expose:
       - 3000
     env_file: 
@@ -88,9 +88,9 @@ services:
 
   shlink:
     image: shlinkio/shlink:stable
-    restart: always
+    restart: on-failure:5
     container_name: shlink-backend
-    user: utilities:utilities
+#    user: utilities:utilities
     env_file:
       - .env.common
       - .env.$SHLB
@@ -106,8 +106,8 @@ services:
 
   database:
     image: mariadb:latest
-    restart: always
-    user: utilities:utilities
+    restart: on-failure:5
+#    user: utilities:utilities
     container_name: shlink-database
     env_file:
       - .env.common
@@ -122,8 +122,8 @@ services:
 
   shlink-web-client:
     image: shlinkio/shlink-web-client
-    restart: always
-    user: utilities:utilities
+    restart: on-failure:5
+#    user: utilities:utilities
     container_name: shlink
     volumes:
       - /config/utilities/shlink/web/servers.json:/usr/share/nginx/html/servers.json
@@ -151,7 +151,8 @@ services:
   watchtower:
     container_name: "watchtower"
     image: "containrrr/watchtower:latest"
-    restart: "always"        
+#    user: "utilities:utilities"
+    restart: "on-failure:5"        
     entrypoint:
       - "/watchtower"
     env_file:
@@ -160,7 +161,7 @@ services:
     expose:
       - "8080/tcp"
     volumes:
-      - "/config/utilities/watchtower/config.json:/config.json"
+#      - "/config/utilities/watchtower/config.json:/config.json"
       - "/config/utilities/watchtower/certs:/etc/ssl/docker"  
     networks:
       - "watchtower"
@@ -170,7 +171,7 @@ services:
     security_opt:
       - no-new-privileges:true
       - apparmor:docker-default
-    command: --tlsverify
+#    command: --tlsverify
 
 
 

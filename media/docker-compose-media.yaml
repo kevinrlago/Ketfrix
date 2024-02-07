@@ -27,7 +27,7 @@ services:
       - "traefik.http.routers.$TV.middlewares=chain-authelia@file"
       - "traefik.http.routers.$TV.tls.certresolver=myresolver"
       - "traefik.http.services.${TV}_svc.loadbalancer.server.port=8989"
-    restart: unless-stopped
+    restart: on-failure:5
     networks:
       - media
     security_opt:
@@ -57,9 +57,9 @@ services:
       - "traefik.http.routers.$FILMS.tls=true"
       - "traefik.http.routers.$FILMS.service=${FILMS}_svc"
       - "traefik.http.routers.$FILMS.middlewares=chain-authelia@file"
-      - "traefik.http.routers.${FILMS}.tls.certresolver=myresolver"
+      - "traefik.http.routers.$FILMS.tls.certresolver=myresolver"
       - "traefik.http.services.${FILMS}_svc.loadbalancer.server.port=7878"
-    restart: unless-stopped
+    restart: on-failure:5
     networks:
       - media
     security_opt:
@@ -91,7 +91,7 @@ services:
       - "traefik.http.routers.$MUSIC.middlewares=chain-authelia@file"
       - "traefik.http.routers.$MUSIC.tls.certresolver=myresolver"
       - "traefik.http.services.${MUSIC}_svc.loadbalancer.server.port=8686"
-    restart: unless-stopped
+    restart: on-failure:5
     networks:
       - media
     security_opt:
@@ -122,7 +122,7 @@ services:
       - "traefik.http.routers.$BOOKS.middlewares=chain-authelia@file"
       - "traefik.http.routers.$BOOKS.tls.certresolver=myresolver"
       - "traefik.http.services.${BOOKS}_svc.loadbalancer.server.port=8787"
-    restart: unless-stopped
+    restart: on-failure:5
     networks:
       - media
     security_opt:
@@ -136,7 +136,7 @@ services:
       # You need at least this one volume mapped so Unpackerr can find your files to extract.
       # Make sure this matches your Starr apps; the folder mount (/downloads or /data) should be identical.
       - /DATA/Downloads:/downloads
-    restart: always
+    restart: on-failure:5
     # Get the user:group correct so unpackerr can read and write to your files.
     #user: ${PUID}:${PGID}
     #user: 1000:1000
@@ -149,12 +149,14 @@ services:
     security_opt:
       - no-new-privileges:true
       - apparmor:docker-default
+    networks:
+      - media
 
   prowlarr:
     container_name: $TRACKER
     image: ghcr.io/hotio/$TRACKER
     #user: ${PUID}:${PGID}
-    restart: always
+    restart: on-failure:5
     depends_on:
       - qbittorrent
     expose:
@@ -166,7 +168,7 @@ services:
     labels:
       - "traefik.docker.network=media"
       - "traefik.enable=true"
-      - "traefik.http.routers.$TRACKER.rule=Host(`$TRACKER.$DOMAIN`) || Host(`$TRACKER.$LOCAL.$DOMAIN` || `$TRACKER.internal.$DOMAIN`)"
+      - "traefik.http.routers.$TRACKER.rule=Host(`$TRACKER.$DOMAIN`) || Host(`$TRACKER.$LOCAL.$DOMAIN`) || Host(`$TRACKER.internal.$DOMAIN`)"
       - "traefik.http.routers.$TRACKER.entrypoints=https"
       - "traefik.http.routers.$TRACKER.tls=true"
       - "traefik.http.routers.$TRACKER.service=${TRACKER}_svc"
@@ -183,7 +185,7 @@ services:
     container_name: qbitmanage
     image: ghcr.io/hotio/qbitmanage
     #user: ${PUID}:${PGID}
-    restart: always
+    restart: on-failure:5
     depends_on:
       - qbittorrent
     env_file:
@@ -194,12 +196,14 @@ services:
     security_opt:
       - no-new-privileges:true
       - apparmor:docker-default
+    networks:
+      - media
 
   qbittorrent:
     container_name: qbittorrent
     image: lscr.io/linuxserver/qbittorrent:latest
     #user: ${PUID}:${PGID}
-    restart: always
+    restart: on-failure:5
     expose:
       - 8080
     ports:
@@ -257,9 +261,9 @@ services:
     image: ghcr.io/hotio/$MEDIAJ
     #user: ${PUID}:${PGID}
     runtime: nvidia
-    devices: 
-      - "/dev/dri:/dev/dri"    
-    restart: always
+    devices:
+      - "/dev/dri:/dev/dri"
+    restart: on-failure:5
     expose:
       - 8096
     env_file:
@@ -288,7 +292,7 @@ services:
     container_name: $REQUESTS
     image: ghcr.io/hotio/$REQUESTS
     #user: ${PUID}:${PGID}
-    restart: always
+    restart: on-failure:5
     depends_on:
       - sonarr
       - radarr
@@ -318,7 +322,7 @@ services:
     container_name: $DOWNMNGMT
     image: jesec/$DOWNMNGMT:master
     user: ${PUID}:${PGID}
-    restart: unless-stopped
+    restart: on-failure:5
     depends_on:
       - qbittorrent
     command: --port 3001 --allowedpath /data
@@ -350,7 +354,7 @@ services:
     container_name: $TAU
     image: ghcr.io/hotio/$TAU
     #user: ${PUID}:${PGID}
-    restart: always
+    restart: on-failure:5
     depends_on:
       - plex
     expose:
@@ -387,7 +391,7 @@ services:
       - /Libros/Biblioteca:/books
     expose:
       - 8083
-    restart: unless-stopped
+    restart: on-failure:5
     labels:
       - "traefik.docker.network=media"
       - "traefik.enable=true"
@@ -421,7 +425,7 @@ services:
       - 8080
       - 8181
       - 8081
-    restart: unless-stopped
+    restart: on-failure:5
     labels:
       - "traefik.docker.network=media"
       - "traefik.enable=true"
@@ -447,9 +451,9 @@ services:
       - /config/media/$DOC:/config
     expose:
       - 3000
-    restart: unless-stopped
+    restart: on-failure:5
     depends_on:
-      - database    
+      - database
     labels:
       - "traefik.docker.network=media"
       - "traefik.enable=true"
@@ -473,7 +477,7 @@ services:
       - .env.$DOCDB
     volumes:
       - /config/media/$DOC/postgresql:/var/lib/postgresql/data
-    restart: always
+    restart: on-failure:5
     networks:
       - media
     security_opt:
@@ -501,13 +505,13 @@ services:
       - "32413:32413/udp"
       - "32414:32414/udp"
     runtime: nvidia
-    devices: 
+    devices:
       - "/dev/dri:/dev/dri"
     volumes:
       - /config/media/$MEDIA:/transcode
       - /DATA/Plex:/data/media
       - /config/media/plexms:/config
-    restart: unless-stopped
+    restart: on-failure:5
     labels:
       - "traefik.docker.network=media"
       - "traefik.enable=true"
@@ -537,9 +541,9 @@ services:
     volumes:
       - /config/media/xteve/conf:/home/xteve/conf
       - /config/media/xteve/guide2go:/home/xteve/guide2go/conf
-    expose: 
+    expose:
       - 34400
-    restart: unless-stopped
+    restart: on-failure:5
     labels:
       - "traefik.docker.network=media"
       - "traefik.enable=true"
@@ -568,7 +572,7 @@ services:
       - /config/media/guide2go:/config
       - /config/media/guide2go/livetv/:/data/livetv/
       - /config/media/guide2go/images:/data/images/
-    restart: always
+    restart: on-failure:5
     security_opt:
       - no-new-privileges:true
       - apparmor:docker-default
@@ -582,7 +586,7 @@ services:
     env_file:
       - .env.common
     network_mode: host
-    restart: always
+    restart: on-failure:5
     security_opt:
       - no-new-privileges:true
       - apparmor:docker-default
@@ -600,7 +604,7 @@ services:
       - .env.autoscan
     volumes:
       - /config/media/autoscan:/config
-    restart: always
+    restart: on-failure:5
     security_opt:
       - no-new-privileges:true
       - apparmor:docker-default
@@ -613,10 +617,12 @@ services:
       - "traefik.http.routers.autoscan.service=autoscan_svc"
       - "traefik.http.routers.autoscan.middlewares=chain-authelia@file"
       - "traefik.http.routers.autoscan.tls.certresolver=myresolver"
-      - "traefik.http.services.autoscan_svc.loadbalancer.server.port=3030" 
+      - "traefik.http.services.autoscan_svc.loadbalancer.server.port=3030"
+    networks:
+      - media
 
 networks:
   media:
-      name: "media"
+    name: "media"
 
 ...
