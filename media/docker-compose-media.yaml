@@ -534,13 +534,11 @@ services:
     #user: ${PUID}:${PGID}
     depends_on:
       - acelink
-      - guide2go
     env_file:
       - .env.common
       - .env.$XTEVE
     volumes:
       - /config/media/xteve/conf:/home/xteve/conf
-      - /config/media/xteve/guide2go:/home/xteve/guide2go/conf
     expose:
       - 34400
     restart: on-failure:5
@@ -556,23 +554,6 @@ services:
       - "traefik.http.services.${XTEVE}_svc.loadbalancer.server.port=34400"
     networks:
       - media
-    security_opt:
-      - no-new-privileges:true
-      - apparmor:docker-default
-
-  guide2go:
-    container_name: guide2go
-    image: chuchodavids/guide2go:stable
-    #user: ${PUID}:${PGID}
-    expose:
-      - 8080
-    env_file:
-      - .env.common
-    volumes:
-      - /config/media/guide2go:/config
-      - /config/media/guide2go/livetv/:/data/livetv/
-      - /config/media/guide2go/images:/data/images/
-    restart: on-failure:5
     security_opt:
       - no-new-privileges:true
       - apparmor:docker-default
