@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  planka:
+    image: ghcr.io/plankanban/planka:latest
+    restart: on-failure:5
+    volumes:
+      - /config/productivity/planka/users-avatars:/app/public/user-avatars
+      - /config/productivity/planka/project-background-images:/app/public/project-background-images
+      - /config/productivity/planka/attachments:/app/private/attachments
+    expose:
+      - 1337
+    env_file:
+      - .env.common
+      - .env.planka
+    networks:
+      - productivity
+      - planka
+    depends_on:
+      postgres:
+        condition: service_healthy
+    labels:
+      - "traefik.docker.network=productivity"
+      - "traefik.enable=true"
+      - "traefik.http.routers.$PLNK.rule=Host(`$PLNK.$DOMAIN`) ||  Host(`$PLNK.$LOCAL.$DOMAIN`)"
+      - "traefik.http.routers.$PLNK.entrypoints=https"
+      - "traefik.http.routers.$PLNK.tls=true"
+      - "traefik.http.routers.$PLNK.service=${PLNK}_svc"
+      - "traefik.http.routers.$PLNK.middlewares=chain-authelia@file"
+      - "traefik.http.routers.$PLNK.tls.certresolver=myresolver"
+      - "traefik.http.services.${PLNK}_svc.loadbalancer.server.port=1337"
+      
+  postgres:
+    image: postgres:14-alpine
+    restart: on-failure:5
+    volumes:
+      - /config/productivity/planka/db-data:/var/lib/postgresql/data
+    env_file:
+      - .env.common
+      - .env.postgresql
+    networks:
+      - planka
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d planka"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  productivity:
+    name: "productivity"
+  planka:
+    name: "planka"

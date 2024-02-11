@@ -1,0 +1,99 @@
+Media
+---------------------
+Sonarr
+Radarr
+Lidarr
+Readarr
+Prowlarr
+Overseerr
+Unpackerr
+Bazarr
+Qbittorrent
+Qbitmanage
+Jellyfin
+Flood
+Tautulli
+Calibre-Web
+Calibre
+Hedgedoc
+Plex
+Xteve
+guide2go
+acelink
+Autoscan
+
+Ingress
+---------------------
+Traefik
+Crowdsec
+Crowdsec-traefik-bouncer
+Crowdsec-firewall-bouncer (F)
+Ddclient
+
+Authentication
+---------------------
+Authelia / Authentik / Keycloak
+openldap
+phpldapadmin
+redis
+
+Monitoring
+---------------------
+Prometheus
+Grafana
+Loki
+cadvisor
+uptimekuma
+scrutiny
+Alertamanager
+NodeExporter
+
+Network
+---------------------
+Unifi
+Pihole / AdGuard
+Wireguard / Tailscale / Headscale
+librespeed
+
+Utilities
+---------------------
+Grocy / Recipya (F)
+Netbootxyz
+Homepage
+shlink
+MySQL
+RClone
+AppRise / Notify / Gotify
+Watchtower
+
+Communications
+---------------------
+Mastodon (F)
+PeerTube (F)
+Lemmy (F)
+
+Productivity
+---------------------
+Focalboard / AppFlowy / Anytype / Logseq
+
+Domotica
+---------------------
+Home Assistant
+¿Node Red? 
+
+Password Managers
+---------------------
+Bitwarden
+BitBetter
+
+LinkWarden
+---------------------
+LinkWarden
+
+Kasm
+---------------------
+Kasm
+
+Security
+---------------------
+Hashicorp Vault

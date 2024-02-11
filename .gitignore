@@ -1,5 +1,4 @@
-proposals.temp
-**/.env
+!**/.env
 **/.env.*
 **/*.yaml
 !media/docker-compose-media.yaml
@@ -10,5 +9,9 @@ proposals.temp
 !monitoring/docker-compose-monitoring.yaml
 !linkwarden/docker-compose-linkwarden.yaml
 !Hashicorp\ Vault/docker-compose-vault.yaml
+!network/docker-compose-network.yaml
+!productivity/docker-compose-productivity.yaml
 docker-compose-portainer.yaml
 docker-compose-plex.yaml
+.env.sample
+.env.common
