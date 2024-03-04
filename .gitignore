@@ -15,3 +15,4 @@ docker-compose-portainer.yaml
 docker-compose-plex.yaml
 .env.sample
 .env.common
+authentication/docker-compose.yml

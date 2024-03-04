@@ -45,45 +45,170 @@ services:
   #     - no-new-privileges:true
   #     - apparmor:docker-default
 
-  keycloak:
-    container_name: keycloak
-    image: quay.io/keycloak/keycloak:latest
-    expose:
-      - 8080
+  # keycloak:
+  #   container_name: keycloak
+  #   image: quay.io/keycloak/keycloak:latest
+  #   expose:
+  #     - 8080
+  #   env_file:
+  #     - .env.common
+  #     - .env.keycloak
+  #   command:
+  #     - build
+  #     - start
+  #   networks:
+  #     - authentication
+  #     - authelia
+  #   depends_on:
+  #     - postgresql
+  #   labels:
+  #     traefik.docker.network: "authentication"
+  #     traefik.enable: "true"
+  #     traefik.http.routers.keycloak.entrypoints: "https"
+  #     traefik.http.routers.keycloak.rule: "Host(`auth.$DOMAIN`)"
+  #     traefik.http.routers.keycloak.tls: "true"
+  #     traefik.http.services.keycloak.loadbalancer.server.port: 8080          
+  #   security_opt:
+  #     - no-new-privileges:true
+  #     - apparmor:docker-default
+  #   logging:
+  #     driver: "json-file"
+  #     options: {}    
+
+  # postgresql:
+  #   image: postgres:16
+  #   env_file:
+  #     - .env.common
+  #     - .env.postgresql
+  #   volumes:
+  #     - '/config/authentication/keycloak/postgresql_data:/var/lib/postgresql/data'
+  #   networks:
+  #     - authelia
+
+  postgresql:
+    container_name: postgresql-auth
+    image: docker.io/library/postgres:12-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    volumes:
+      - database:/var/lib/postgresql/data
     env_file:
+      - .env
       - .env.common
-      - .env.keycloak
-    command:
-      - build
-      - start
-    networks:
-      - authentication
-      - authelia
-    depends_on:
-      - postgresql
+      - .env.postgresql     
+    logging:
+      driver: "json-file"
+      options: {}
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
+
+  redis:
+    container_name: redis
+    image: docker.io/library/redis:alpine
+    command: --save 60 1 --loglevel warning
+    restart: on-failure:5
+    expose:
+      - 6379
+    env_file:
+      - .env
+      - .env.common
+      - .env.redis
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    volumes:
+      - redis:/data
     labels:
       traefik.docker.network: "authentication"
       traefik.enable: "true"
-      traefik.http.routers.keycloak.entrypoints: "https"
-      traefik.http.routers.keycloak.rule: "Host(`auth.$DOMAIN`)"
-      traefik.http.routers.keycloak.tls: "true"
-      traefik.http.services.keycloak.loadbalancer.server.port: 8080          
+      traefik.tcp.routers.redis.entrypoints: "redis"
+      traefik.tcp.routers.redis.rule: "HostSNI(`redis.$DOMAIN`) || HostSNI(`redis.$LOCAL.$DOMAIN`)"
+      traefik.tcp.routers.redis.service: "redis_svc"
+      traefik.tcp.routers.redis.tls: "true"
+      traefik.tcp.routers.redis.tls.certresolver: "myresolver"
+      traefik.tcp.services.redis_svc.loadbalancer.server.port: "6379"
+    networks:
+      - "authentication"
+      - "authelia"
     security_opt:
       - no-new-privileges:true
       - apparmor:docker-default
     logging:
       driver: "json-file"
-      options: {}    
+      options: {}
 
-  postgresql:
-    image: postgres:16
-    env_file:
-      - .env.common
-      - .env.postgresql
+  server:
+    container_name: auth-srv
+    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2023.10.7}
+    restart: on-failure:5
+    command: server
     volumes:
-      - '/config/authentication/keycloak/postgresql_data:/var/lib/postgresql/data'
-    networks:
-      - authelia
+      - /config/authentication/authentik/media:/media
+      - /config/authentication/authentik/custom-templates:/templates
+    env_file:
+      - .env
+      - .env.common
+      - .env.auth-srv
+    ports:
+      - "${COMPOSE_PORT_HTTP:-9000}:9000"
+      - "${COMPOSE_PORT_HTTPS:-9443}:9443"
+    depends_on:
+      - postgresql
+      - redis
+    expose:
+      - 8080
+      - 8443
+    logging:
+      driver: "json-file"
+      options: {}
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
+    labels:
+      traefik.docker.network: "authentication"
+      traefik.enable: "true"
+      traefik.http.routers.auth.entrypoints: "https"
+      traefik.http.routers.auth.rule: "Host(`auth.$DOMAIN`) && PathPrefix(`/outpost.goauthentik.io/`)"
+      traefik.http.routers.auth.tls: "true" 
+      
+  worker:
+    container_name: auth-wrkr
+    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2023.10.7}
+    restart: on-failure:5
+    command: worker
+    # `user: root` and the docker socket volume are optional.
+    # See more for the docker socket integration here:
+    # https://goauthentik.io/docs/outposts/integrations/docker
+    # Removing `user: root` also prevents the worker from fixing the permissions
+    # on the mounted folders, so when removing this make sure the folders have the correct UID/GID
+    # (1000:1000 by default)
+    user: root
+    volumes:
+      - /config/authentication/authentik/media:/media
+      - /config/authentication/authentik/certs:/certs
+      - /config/authentication/authentik/custom-templates:/templates
+    env_file:
+      - .env
+      - .env.common
+      - .env.auth-wrkr      
+    depends_on:
+      - postgresql
+      - redis
+    logging:
+      driver: "json-file"
+      options: {}
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
 
   openldap:
     container_name: "openldap"
@@ -160,38 +285,19 @@ services:
       - "/config/authentication/phpldapadmin/99-default:/container/environment/99-default"
       - "9340e8e462c1e082f764dfab610637a9d7ab0c1da130f9f646497da33e08472a:/var/www/phpldapadmin"
 
-  redis:
-    container_name: "redis"
-    image: "bitnami/redis:latest"
-    user: "1001"    
-    restart: "on-failure:5"
-    expose:
-      - "6379/tcp"            
-    command:
-      - "/opt/bitnami/scripts/redis/run.sh"
-    entrypoint:
-      - "/opt/bitnami/scripts/redis/entrypoint.sh"
-    env_file:
-      - .env.common
-      - .env.redis
-    labels:
-      traefik.docker.network: "authentication"
-      traefik.enable: "true"
-      traefik.tcp.routers.redis.entrypoints: "redis"
-      traefik.tcp.routers.redis.rule: "HostSNI(`redis.$DOMAIN`) || HostSNI(`redis.$LOCAL.$DOMAIN`)"
-      traefik.tcp.routers.redis.service: "redis_svc"
-      traefik.tcp.routers.redis.tls: "true"
-      traefik.tcp.routers.redis.tls.certresolver: "myresolver"
-      traefik.tcp.services.redis_svc.loadbalancer.server.port: "6379"
-    networks:
-      - "authentication"
-      - "authelia"
-    security_opt:
-      - no-new-privileges:true
-      - apparmor:docker-default
-    logging:
-      driver: "json-file"
-      options: {}
+  # redis:
+  #   container_name: "redis"
+  #   image: "bitnami/redis:latest"
+  #   user: "1001"    
+  #   restart: "on-failure:5"
+  #   expose:
+  #     - "6379/tcp"            
+  #   command:
+  #     - "/opt/bitnami/scripts/redis/run.sh"
+  #   entrypoint:
+  #     - "/opt/bitnami/scripts/redis/entrypoint.sh"
+  #   env_file:
+
 
   mariadb:
     container_name: "mariadb"
@@ -206,8 +312,10 @@ services:
       - authelia
 
 volumes:
-  9340e8e462c1e082f764dfab610637a9d7ab0c1da130f9f646497da33e08472a:
-    external: true
+  database:
+    driver: local
+  redis:
+    driver: local
 
 networks:
   authentication:
